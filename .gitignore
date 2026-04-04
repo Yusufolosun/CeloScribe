@@ -1,0 +1,54 @@
+# === ENVIRONMENT & SECRETS (NEVER COMMIT) ===
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.env
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+mnemonic.txt
+seed.txt
+wallet.json
+
+# === HARDHAT / BLOCKCHAIN ===
+packages/contracts/cache/
+packages/contracts/artifacts/
+packages/contracts/deployments/
+packages/contracts/typechain-types/
+packages/contracts/.openzeppelin/
+
+# === NEXT.JS ===
+apps/web/.next/
+apps/web/out/
+apps/web/.vercel/
+
+# === NODE ===
+node_modules/
+.pnpm-store/
+dist/
+build/
+
+# === EDITORS ===
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# === LOGS ===
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === TESTING ===
+coverage/
+.nyc_output/
+
+# === TURBO ===
+.turbo/
