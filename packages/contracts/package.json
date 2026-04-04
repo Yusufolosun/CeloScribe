@@ -1,0 +1,21 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.1",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^7.0.0",
+    "@nomicfoundation/hardhat-verify": "^3.0.13",
+    "dotenv": "^17.4.0",
+    "hardhat": "^3.3.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-solidity": "^2.3.1"
+  }
+}
