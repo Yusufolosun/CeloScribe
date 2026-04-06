@@ -61,4 +61,17 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     error ZeroAddress();
     error ZeroBalance();
     error InvalidTaskType();
+
+    // â”€â”€â”€ Constructor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    /**
+     * @param _cusd Address of the cUSD ERC-20 token
+     * @param _treasury Address that receives protocol revenue
+     */
+    constructor(address _cusd, address _treasury) Ownable(msg.sender) {
+        if (_cusd == address(0)) revert ZeroAddress();
+        if (_treasury == address(0)) revert ZeroAddress();
+        cusd = IERC20(_cusd);
+        treasury = _treasury;
+    }
 }
