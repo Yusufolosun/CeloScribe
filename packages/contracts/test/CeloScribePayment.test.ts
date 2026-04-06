@@ -103,4 +103,41 @@ describe("CeloScribePayment", function () {
       expect(await payment.priceOf(TASK_TYPE.TRANSLATE)).to.equal(prices.translate);
     });
   });
+
+  describe("withdrawToTreasury", function () {
+    it("transfers full contract balance to treasury and emits TreasuryWithdrawal", async function () {
+      const { owner, user, treasury, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.image);
+      await payment.connect(user).payForTask(TASK_TYPE.IMAGE);
+
+      const before = await mockCusd.balanceOf(treasury.address);
+
+      await expect(payment.connect(owner).withdrawToTreasury())
+        .to.emit(payment, "TreasuryWithdrawal")
+        .withArgs(treasury.address, prices.image);
+
+      const after = await mockCusd.balanceOf(treasury.address);
+      expect(after - before).to.equal(prices.image);
+      expect(await mockCusd.balanceOf(await payment.getAddress())).to.equal(0n);
+    });
+
+    it("reverts with ZeroBalance if balance is 0", async function () {
+      const { owner, payment } = await deployFixture();
+
+      await expect(payment.connect(owner).withdrawToTreasury()).to.be.revertedWithCustomError(
+        payment,
+        "ZeroBalance"
+      );
+    });
+
+    it("reverts if called by non-owner", async function () {
+      const { user, payment } = await deployFixture();
+
+      await expect(payment.connect(user).withdrawToTreasury()).to.be.revertedWithCustomError(
+        payment,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+  });
 });
