@@ -76,5 +76,20 @@ describe("CeloScribePayment", function () {
         "EnforcedPause"
       );
     });
+
+    it("works for all 4 task types with correct amounts", async function () {
+      const { user, payment, mockCusd, prices } = await deployFixture();
+
+      const expectedTotal = prices.short + prices.long + prices.image + prices.translate;
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), expectedTotal);
+
+      await payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT);
+      await payment.connect(user).payForTask(TASK_TYPE.TEXT_LONG);
+      await payment.connect(user).payForTask(TASK_TYPE.IMAGE);
+      await payment.connect(user).payForTask(TASK_TYPE.TRANSLATE);
+
+      expect(await payment.totalPaymentsReceived()).to.equal(expectedTotal);
+    });
   });
 });
