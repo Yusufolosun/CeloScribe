@@ -124,4 +124,14 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         // INTERACTIONS
         cusd.safeTransfer(treasury, balance);
     }
+
+    /**
+     * @notice Update the treasury address. Owner only.
+     */
+    function setTreasury(address newTreasury) external onlyOwner {
+        if (newTreasury == address(0)) revert ZeroAddress();
+        address old = treasury;
+        treasury = newTreasury;
+        emit TreasuryUpdated(old, newTreasury);
+    }
 }
