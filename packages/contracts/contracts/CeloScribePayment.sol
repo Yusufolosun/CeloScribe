@@ -99,4 +99,15 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         // INTERACTIONS
         cusd.safeTransferFrom(msg.sender, address(this), requiredAmount);
     }
+
+    /**
+     * @notice Returns the required cUSD amount for a given task type.
+     */
+    function priceOf(TaskType taskType) public pure returns (uint256) {
+        if (taskType == TaskType.TEXT_SHORT) return PRICE_TEXT_SHORT;
+        if (taskType == TaskType.TEXT_LONG) return PRICE_TEXT_LONG;
+        if (taskType == TaskType.IMAGE) return PRICE_IMAGE;
+        if (taskType == TaskType.TRANSLATE) return PRICE_TRANSLATE;
+        revert InvalidTaskType();
+    }
 }
