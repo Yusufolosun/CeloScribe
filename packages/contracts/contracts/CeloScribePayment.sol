@@ -16,4 +16,9 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
  */
 contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     using SafeERC20 for IERC20;
+
+    // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    /// @notice cUSD token address on Celo Mainnet
+    address public constant CUSD_MAINNET = 0x765DE816845861e75A25fCA122bb6898B8B1282a;
 }
