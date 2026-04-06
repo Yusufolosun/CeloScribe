@@ -55,5 +55,14 @@ describe("CeloScribePayment", function () {
         .to.emit(payment, "PaymentReceived")
         .withArgs(user.address, TASK_TYPE.TEXT_LONG, prices.long, anyValue);
     });
+
+    it("increments totalPaymentsReceived correctly", async function () {
+      const { user, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.image);
+      await payment.connect(user).payForTask(TASK_TYPE.IMAGE);
+
+      expect(await payment.totalPaymentsReceived()).to.equal(prices.image);
+    });
   });
 });
