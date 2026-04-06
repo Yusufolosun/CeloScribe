@@ -21,4 +21,13 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
 
     /// @notice cUSD token address on Celo Mainnet
     address public constant CUSD_MAINNET = 0x765DE816845861e75A25fCA122bb6898B8B1282a;
+
+    // â”€â”€â”€ Task Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    enum TaskType {
+        TEXT_SHORT, // $0.01 â€” up to 300 words
+        TEXT_LONG, // $0.05 â€” up to 1500 words
+        IMAGE, // $0.08 â€” image generation
+        TRANSLATE // $0.02 â€” language translation
+    }
 }
