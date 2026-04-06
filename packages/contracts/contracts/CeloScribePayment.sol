@@ -54,4 +54,11 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
 
     /// @notice Emitted when accumulated cUSD is withdrawn to treasury
     event TreasuryWithdrawal(address indexed treasury, uint256 amount);
+
+    // â”€â”€â”€ Errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    error InsufficientPayment(uint256 required, uint256 provided);
+    error ZeroAddress();
+    error ZeroBalance();
+    error InvalidTaskType();
 }
