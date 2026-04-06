@@ -74,4 +74,29 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         cusd = IERC20(_cusd);
         treasury = _treasury;
     }
+
+    // â”€â”€â”€ External Functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    /**
+     * @notice Pay for an AI task. User must have approved this contract to spend cUSD.
+     * @param taskType The type of AI task being requested.
+     * @dev Follows Checks-Effects-Interactions:
+     *      1. Check: validate approval against task price
+     *      2. Effect: update state (totalPaymentsReceived, emit event)
+     *      3. Interact: transfer cUSD from user to this contract
+     */
+    function payForTask(TaskType taskType) external nonReentrant whenNotPaused {
+        uint256 requiredAmount = priceOf(taskType);
+
+        // CHECKS
+        uint256 approvedAmount = cusd.allowance(msg.sender, address(this));
+        if (approvedAmount < requiredAmount) revert InsufficientPayment(requiredAmount, approvedAmount);
+
+        // EFFECTS
+        totalPaymentsReceived += requiredAmount;
+        emit PaymentReceived(msg.sender, taskType, requiredAmount, block.timestamp);
+
+        // INTERACTIONS
+        cusd.safeTransferFrom(msg.sender, address(this), requiredAmount);
+    }
 }
