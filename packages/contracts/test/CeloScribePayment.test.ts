@@ -33,4 +33,17 @@ describe("CeloScribePayment", function () {
 
     return { owner, user, treasury, other, mockCusd, payment, prices };
   }
+
+  describe("payForTask", function () {
+    it("reverts with InsufficientPayment if user has not approved enough cUSD", async function () {
+      const { user, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short - 1n);
+
+      await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT)).to.be.revertedWithCustomError(
+        payment,
+        "InsufficientPayment"
+      );
+    });
+  });
 });
