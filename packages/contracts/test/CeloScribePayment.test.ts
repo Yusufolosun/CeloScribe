@@ -140,4 +140,34 @@ describe("CeloScribePayment", function () {
       );
     });
   });
+
+  describe("setTreasury", function () {
+    it("updates treasury address and emits TreasuryUpdated", async function () {
+      const { owner, treasury, other, payment } = await deployFixture();
+
+      await expect(payment.connect(owner).setTreasury(other.address))
+        .to.emit(payment, "TreasuryUpdated")
+        .withArgs(treasury.address, other.address);
+
+      expect(await payment.treasury()).to.equal(other.address);
+    });
+
+    it("reverts with ZeroAddress if address is zero", async function () {
+      const { owner, payment } = await deployFixture();
+
+      await expect(payment.connect(owner).setTreasury(ethers.ZeroAddress)).to.be.revertedWithCustomError(
+        payment,
+        "ZeroAddress"
+      );
+    });
+
+    it("reverts if called by non-owner", async function () {
+      const { user, other, payment } = await deployFixture();
+
+      await expect(payment.connect(user).setTreasury(other.address)).to.be.revertedWithCustomError(
+        payment,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+  });
 });
