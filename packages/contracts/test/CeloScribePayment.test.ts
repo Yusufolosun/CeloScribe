@@ -92,4 +92,15 @@ describe("CeloScribePayment", function () {
       expect(await payment.totalPaymentsReceived()).to.equal(expectedTotal);
     });
   });
+
+  describe("priceOf", function () {
+    it("returns correct constant for each TaskType", async function () {
+      const { payment, prices } = await deployFixture();
+
+      expect(await payment.priceOf(TASK_TYPE.TEXT_SHORT)).to.equal(prices.short);
+      expect(await payment.priceOf(TASK_TYPE.TEXT_LONG)).to.equal(prices.long);
+      expect(await payment.priceOf(TASK_TYPE.IMAGE)).to.equal(prices.image);
+      expect(await payment.priceOf(TASK_TYPE.TRANSLATE)).to.equal(prices.translate);
+    });
+  });
 });
