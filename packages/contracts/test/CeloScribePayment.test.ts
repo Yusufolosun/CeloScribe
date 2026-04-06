@@ -45,5 +45,15 @@ describe("CeloScribePayment", function () {
         "InsufficientPayment"
       );
     });
+
+    it("emits PaymentReceived with correct args on success", async function () {
+      const { user, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.long);
+
+      await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_LONG))
+        .to.emit(payment, "PaymentReceived")
+        .withArgs(user.address, TASK_TYPE.TEXT_LONG, prices.long, anyValue);
+    });
   });
 });
