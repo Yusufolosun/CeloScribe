@@ -37,4 +37,10 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     uint256 public constant PRICE_TEXT_LONG = 0.05 ether; // 0.05 cUSD
     uint256 public constant PRICE_IMAGE = 0.08 ether; // 0.08 cUSD
     uint256 public constant PRICE_TRANSLATE = 0.02 ether; // 0.02 cUSD
+
+    // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    IERC20 public immutable cusd;
+    address public treasury;
+    uint256 public totalPaymentsReceived;
 }
