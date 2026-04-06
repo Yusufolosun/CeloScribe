@@ -110,4 +110,18 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         if (taskType == TaskType.TRANSLATE) return PRICE_TRANSLATE;
         revert InvalidTaskType();
     }
+
+    /**
+     * @notice Withdraw all accumulated cUSD to the treasury. Owner only.
+     */
+    function withdrawToTreasury() external onlyOwner nonReentrant {
+        uint256 balance = cusd.balanceOf(address(this));
+        if (balance == 0) revert ZeroBalance();
+
+        // EFFECTS
+        emit TreasuryWithdrawal(treasury, balance);
+
+        // INTERACTIONS
+        cusd.safeTransfer(treasury, balance);
+    }
 }
