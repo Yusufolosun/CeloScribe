@@ -30,4 +30,11 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         IMAGE, // $0.08 â€” image generation
         TRANSLATE // $0.02 â€” language translation
     }
+
+    // â”€â”€â”€ Pricing (in cUSD, 18 decimals) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    uint256 public constant PRICE_TEXT_SHORT = 0.01 ether; // 0.01 cUSD
+    uint256 public constant PRICE_TEXT_LONG = 0.05 ether; // 0.05 cUSD
+    uint256 public constant PRICE_IMAGE = 0.08 ether; // 0.08 cUSD
+    uint256 public constant PRICE_TRANSLATE = 0.02 ether; // 0.02 cUSD
 }
