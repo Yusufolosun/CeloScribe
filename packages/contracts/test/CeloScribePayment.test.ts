@@ -64,5 +64,17 @@ describe("CeloScribePayment", function () {
 
       expect(await payment.totalPaymentsReceived()).to.equal(prices.image);
     });
+
+    it("reverts when paused", async function () {
+      const { owner, user, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short);
+      await payment.connect(owner).pause();
+
+      await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT)).to.be.revertedWithCustomError(
+        payment,
+        "EnforcedPause"
+      );
+    });
   });
 });
