@@ -170,4 +170,25 @@ describe("CeloScribePayment", function () {
       );
     });
   });
+
+  describe("pause / unpause", function () {
+    it("owner can pause and unpause", async function () {
+      const { owner, payment } = await deployFixture();
+
+      await payment.connect(owner).pause();
+      expect(await payment.paused()).to.equal(true);
+
+      await payment.connect(owner).unpause();
+      expect(await payment.paused()).to.equal(false);
+    });
+
+    it("non-owner cannot pause", async function () {
+      const { user, payment } = await deployFixture();
+
+      await expect(payment.connect(user).pause()).to.be.revertedWithCustomError(
+        payment,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+  });
 });
