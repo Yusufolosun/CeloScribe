@@ -134,4 +134,18 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         treasury = newTreasury;
         emit TreasuryUpdated(old, newTreasury);
     }
+
+    /**
+     * @notice Pause all payments. Owner only. Used for emergency stops.
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @notice Unpause payments. Owner only.
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
 }
