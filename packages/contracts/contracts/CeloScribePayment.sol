@@ -43,4 +43,15 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     IERC20 public immutable cusd;
     address public treasury;
     uint256 public totalPaymentsReceived;
+
+    // â”€â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+    /// @notice Emitted on every successful task payment
+    event PaymentReceived(address indexed user, TaskType indexed taskType, uint256 amount, uint256 timestamp);
+
+    /// @notice Emitted when the treasury address is updated
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
+
+    /// @notice Emitted when accumulated cUSD is withdrawn to treasury
+    event TreasuryWithdrawal(address indexed treasury, uint256 amount);
 }
