@@ -1,73 +1,52 @@
-# CeloScribe — Architecture
+# CeloScribe Architecture
 
 ## System Overview
 
+```text
++-------------------+      +----------------------+      +------------------------+      +---------------------+      +----------------+
+|   MiniApp UI      | ---> | Smart Contract       | ---> | Next.js API Routes     | ---> | AI Provider Routing | ---> | Response       |
+|   (Celo / MiniPay)|      | (payment boundary)   |      | (server-side control)  |      | (provider adapters) |      | to user        |
++-------------------+      +----------------------+      +------------------------+      +---------------------+      +----------------+
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        MiniPay Browser                       │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │            CeloScribe MiniApp (Next.js)              │   │
-│  │                                                       │   │
-│  │   [Task UI] → [Payment Confirm] → [Task Result]      │   │
-│  └──────────────────┬────────────────────────────────────┘   │
-└─────────────────────│────────────────────────────────────────┘
-                       │ wagmi / viem
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              CeloScribe Smart Contract (Celo L2)             │
-│                                                              │
-│   receivePament(taskType, amount)                            │
-│   → validates amount ≥ taskPrice[taskType]                   │
-│   → emits PaymentReceived(user, taskType, amount)            │
-│   → credits are tracked off-chain via event indexing         │
-└─────────────────────────────────────────────────────────────┘
-                       │ on-chain event
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Next.js API Routes (Server-Side)                │
-│                                                              │
-│   POST /api/task/generate                                    │
-│   → verifies tx hash against contract event                  │
-│   → routes to correct AI provider                            │
-│   → returns task result                                      │
-│                                                              │
-│   AI Provider Routing:                                       │
-│   TEXT_SHORT  → DeepSeek V3     ($0.01)                      │
-│   TEXT_LONG   → Claude Haiku    ($0.05)                      │
-│   IMAGE       → fal.ai SDXL     ($0.08)                      │
-│   TRANSLATE   → DeepSeek V3     ($0.02)                      │
-└─────────────────────────────────────────────────────────────┘
-```
+
+## Layer Responsibilities
+
+### MiniApp UI
+
+The MiniApp UI is the user-facing entry point that will live in the Next.js frontend under `apps/web`. It is responsible for presenting the request form, initiating payment, and showing the result after a payment has been verified.
+
+### Smart Contract
+
+The payment contract workspace under `packages/contracts` defines the on-chain payment boundary. Its role is to accept and verify cUSD payment transactions for the supported request types. The contract is the security anchor for the system: if a payment is not verified on-chain, the downstream AI request should not be served.
+
+### Next.js API Routes
+
+The API route layer will run server-side inside the Next.js application. It will receive verified request metadata from the frontend, confirm that the on-chain payment exists, and coordinate the rest of the request lifecycle. This layer keeps secret values and backend logic out of the browser.
+
+### AI Provider Routing
+
+The AI routing layer will map an approved request to the correct provider implementation. This layer is responsible for choosing the provider adapter, normalizing the request payload, and returning a response in a consistent format.
+
+### Response
+
+The response is the final result returned to the user in the MiniApp UI. The response layer should only be reached after the request has cleared payment verification and server-side routing.
 
 ## Payment Flow
 
-1. User selects a task type in the MiniApp UI.
-2. MiniPay presents a payment confirmation (amount in cUSD).
-3. User approves. Transaction is sent to the CeloScribe contract.
-4. Contract validates the payment amount matches the task price.
-5. Contract emits a `PaymentReceived` event with `(user, taskType, txHash)`.
-6. Frontend detects transaction confirmation (1 block on Celo = ~1 second).
-7. Frontend sends `POST /api/task/generate` with `{ txHash, taskType, prompt }`.
-8. API route verifies the `txHash` resolves to a valid `PaymentReceived` event on-chain.
-9. API route calls the appropriate AI provider.
-10. Result is returned to the user in the MiniApp.
+1. The user opens the MiniApp UI and selects a supported request.
+2. The frontend prepares the required payment action for the selected request type.
+3. The user approves the cUSD payment in a Celo-compatible wallet.
+4. The smart contract records the payment and emits the on-chain evidence needed for verification.
+5. The frontend sends the request metadata to the Next.js API route.
+6. The API route verifies the payment on-chain before proceeding.
+7. The API route passes the request to the AI provider routing layer.
+8. The routed provider returns a response to the API route.
+9. The API route returns the response to the MiniApp UI.
+10. The MiniApp UI renders the final result for the user.
 
-## Security Model
+## Design Notes
 
-- All AI API keys are server-side only (API routes, never exposed to browser).
-- Payment verification is on-chain — a user cannot call the AI API without a valid on-chain payment.
-- No user data is stored server-side. All state is on-chain or in the user's browser session.
-- Rate limiting is enforced per wallet address at the API route layer.
-
-## Smart Contract
-
-- Network: Celo Mainnet (Chain ID: 42220)
-- Token: cUSD (ERC-20, address: `0x765DE816845861e75A25fCA122bb6898B8B1282a`)
-- Contract: CeloScribePayment.sol (Prompt 04)
-
-## Agent Identity
-
-- Standard: ERC-8004
-- Registered on: AgentScan (8004scan.io)
-- Self Agent ID: verified human-backed agent
-- Agent Visa Target: Work Visa tier (1,000+ txns, $5,000+ volume)
+- On-chain payment verification is the system boundary that decides whether a request may continue.
+- Secret values must remain server-side in the API route layer.
+- The frontend owns presentation and request initiation, not provider credentials or payment validation.
+- Subsequent prompts will fill in the API routes, provider adapters, and request-specific contract behavior.
