@@ -1,0 +1,32 @@
+# CeloScribe Security
+
+## Secret Management Policy
+
+All secrets must remain outside the repository and outside the browser runtime. Environment values should be provided locally through untracked files such as `.env.local` and in deployment environments through the platform secret manager.
+
+## What Is Never Committed
+
+The following must not be committed to the repository:
+
+- Private keys
+- Wallet seed phrases
+- API keys and provider secrets
+- Access tokens
+- Database credentials
+- Production environment files
+- User-specific local overrides
+
+## Rate Limiting
+
+Rate limiting will be enforced on the server side in the Next.js API layer once request routes are added. The rate limiter should operate on wallet address and request context rather than on UI state alone, because the UI is not a security boundary.
+
+## On-Chain Payment Verification
+
+On-chain payment verification is the security boundary for paid requests. A request may proceed only after the backend verifies that the required cUSD payment was recorded on-chain for the intended request type. The frontend may initiate the flow, but it must never be treated as proof of payment.
+
+## Security Expectations for Future Work
+
+- Keep payment verification server-side.
+- Keep provider credentials server-side.
+- Do not add client-side shortcuts around payment checks.
+- Treat unverified requests as unauthorized until the on-chain evidence is confirmed.
