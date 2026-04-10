@@ -1,59 +1,61 @@
 # CeloScribe
 
-> Pay-per-use AI tools inside MiniPay. No subscription. No credit card. Just cUSD.
+Pay-per-use AI access on Celo, built as a MiniApp and backed by on-chain cUSD payments.
 
-CeloScribe is a MiniApp built on the Celo blockchain that gives MiniPay users access to AI-powered tools — text generation, translation, and image creation — for micro-payments starting at $0.01 per task, paid in cUSD.
+## What is CeloScribe
 
-## Why CeloScribe?
+CeloScribe is a Celo-based MiniApp that will let users pay for AI access one request at a time instead of subscribing to a monthly plan. The payment boundary is on-chain: a user approves a cUSD payment through a Celo-compatible wallet, and the application uses that verified payment as the basis for delivering the requested AI result. The repository currently contains the Next.js frontend scaffold, the payment contract workspace, and the documentation and tooling needed for the system that will be completed in later prompts.
 
-- ChatGPT Plus costs $20/month. That is 10–15% of monthly income for many users in Nigeria and Kenya.
-- CeloScribe charges per use. $0.01 for a short text. $0.05 for a long-form piece. $0.08 for an image.
-- Payment is automatic, on-chain, and settled in under 1 second via Celo's L2 infrastructure.
-- No wallet setup beyond MiniPay. No gas management. No subscriptions.
+## Prerequisites
 
-## Architecture Overview
+- Node.js 20 or later
+- pnpm 9 or later
+- A Celo-compatible wallet for local testing and future MiniApp flows
 
-See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for full system design.
+## Installation
 
-## Getting Started
-
-### Prerequisites
-- Node.js ≥ 20
-- pnpm ≥ 9
-- A MiniPay or any Celo-compatible wallet for testing
-
-### Installation
 ```bash
-git clone https://github.com/<your-username>/celoscribe.git
-cd celoscribe
+git clone https://github.com/<your-org>/CeloScribe.git
+cd CeloScribe
 pnpm install
 cp .env.example .env.local
-# Fill in .env.local with real values — see .env.example for required keys
 ```
 
-### Development
+If you are not configuring environment variables yet, the copied file can remain empty until later prompts add runtime settings.
+
+## Development Commands
+
 ```bash
-pnpm dev         # Starts the Next.js app at localhost:3000
+pnpm dev         # Runs the workspace development tasks
+pnpm build       # Runs the workspace production build
+pnpm lint        # Runs the workspace lint pipeline
+pnpm test        # Runs workspace tests when present
 ```
 
-### Testing
+For frontend work specifically, you can run the app directly from `apps/web`:
+
 ```bash
-pnpm test        # Runs all tests across workspaces
+pnpm --dir apps/web dev
+pnpm --dir apps/web build
+pnpm --dir apps/web lint
 ```
 
 ## Repository Structure
 
-```
-celoscribe/
-├── apps/web/          # Next.js 14 MiniApp frontend
-├── packages/contracts/ # Solidity smart contracts (Hardhat)
-└── docs/              # Architecture and technical documentation
+```text
+CeloScribe/
+├── apps/
+│   └── web/               Next.js MiniApp frontend scaffold
+├── packages/
+│   └── contracts/         Hardhat Solidity workspace for payment logic
+├── docs/                  Architecture, security, and API documentation
+├── .husky/                Git hooks used by the quality pipeline
+├── .prettierrc            Root Prettier configuration
+├── .prettierignore        Files excluded from formatting
+├── package.json           Workspace scripts and lint-staged config
+└── turbo.json             Turborepo task configuration
 ```
 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-## License
-
-MIT
