@@ -3,6 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.28.1",
   "scripts": {
+    "compile": "pnpm --dir packages/contracts compile",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",
