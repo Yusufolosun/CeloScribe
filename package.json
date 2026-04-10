@@ -12,7 +12,7 @@
   },
   "lint-staged": {
     "apps/web/**/*.{ts,tsx}": [
-      "cross-env ESLINT_USE_FLAT_CONFIG=false eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0",
       "prettier --write"
     ],
     "packages/contracts/**/*.sol": [
