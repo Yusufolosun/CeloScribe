@@ -31,6 +31,8 @@ The app shell now mounts a client-side Web3 provider that combines Wagmi v2, Vie
 
 If you want to use Thirdweb features that need a client ID, set `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` in your environment.
 
+You can start from `.env.example` in this folder and copy the value into `.env.local`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
