@@ -1,5 +1,6 @@
 'use client';
 
+import { WalletHeader } from '@/components/WalletHeader';
 import { StatusCard } from '@/components/StatusCard';
 import { useMiniPay } from '@/hooks/useMiniPay';
 import { formatAddress } from '@/lib/formatAddress';
@@ -10,17 +11,11 @@ export function WalletPanel() {
   return (
     <section className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-white/80 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.12)] backdrop-blur dark:bg-slate-950/70">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-700 dark:text-cyan-300">
-            Celo wallet layer
-          </p>
-          <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
-            MiniPay-aware wallet connection for Celo apps.
-          </h1>
-          <p className="max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300">
-            The provider stack is ready for Wagmi, Viem, React Query, and Thirdweb. This panel shows the current MiniPay and chain state without any payment flow.
-          </p>
-        </div>
+        <WalletHeader
+          eyebrow="Celo wallet layer"
+          title="MiniPay-aware wallet connection for Celo apps."
+          description="The provider stack is ready for Wagmi, Viem, React Query, and Thirdweb. This panel shows the current MiniPay and chain state without any payment flow."
+        />
 
         <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
           <p className="font-medium">Wallet</p>
