@@ -2,8 +2,8 @@
 
 import { WalletHeader } from '@/components/WalletHeader';
 import { StatusCard } from '@/components/StatusCard';
+import { WalletSummary } from '@/components/WalletSummary';
 import { useMiniPay } from '@/hooks/useMiniPay';
-import { formatAddress } from '@/lib/formatAddress';
 
 export function WalletPanel() {
   const { address, chain, connectWallet, disconnect, isConnected, isConnecting, isMiniPay, isOnCelo } = useMiniPay();
@@ -17,10 +17,7 @@ export function WalletPanel() {
           description="The provider stack is ready for Wagmi, Viem, React Query, and Thirdweb. This panel shows the current MiniPay and chain state without any payment flow."
         />
 
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-          <p className="font-medium">Wallet</p>
-          <p>{formatAddress(address)}</p>
-        </div>
+        <WalletSummary address={address} />
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
