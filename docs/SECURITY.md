@@ -4,6 +4,8 @@
 
 All secrets must remain outside the repository and outside the browser runtime. Environment values should be provided locally through untracked files such as `.env.local` and in deployment environments through the platform secret manager.
 
+Public client IDs used by the Thirdweb SDK are not secrets, but they should still be sourced from environment variables so the frontend config stays portable.
+
 ## What Is Never Committed
 
 The following must not be committed to the repository:
@@ -23,6 +25,8 @@ Rate limiting will be enforced on the server side in the Next.js API layer once 
 ## On-Chain Payment Verification
 
 On-chain payment verification is the security boundary for paid requests. A request may proceed only after the backend verifies that the required cUSD payment was recorded on-chain for the intended request type. The frontend may initiate the flow, but it must never be treated as proof of payment.
+
+MiniPay detection in the browser is only a convenience signal for the UI. It does not authorize a request and it does not replace backend verification.
 
 ## Security Expectations for Future Work
 
