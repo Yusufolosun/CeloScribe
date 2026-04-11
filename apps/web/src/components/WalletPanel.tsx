@@ -1,11 +1,7 @@
 'use client';
 
 import { useMiniPay } from '@/hooks/useMiniPay';
-
-function formatAddress(address?: string) {
-  if (!address) return 'Not connected';
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
-}
+import { formatAddress } from '@/lib/formatAddress';
 
 export function WalletPanel() {
   const { address, chain, connectWallet, disconnect, isConnected, isConnecting, isMiniPay, isOnCelo } = useMiniPay();
