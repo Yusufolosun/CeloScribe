@@ -20,6 +20,17 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Web3 Setup
+
+The app shell now mounts a client-side Web3 provider that combines Wagmi v2, Viem, and React Query for Celo mainnet and Alfajores support.
+
+- `src/lib/chains.ts` centralizes the Celo chain definitions and the cUSD contract address.
+- `src/lib/wagmi.ts` configures Wagmi with the injected MetaMask-compatible connector MiniPay exposes.
+- `src/hooks/useMiniPay.ts` exposes wallet state, MiniPay detection, and connect/disconnect actions.
+- `src/lib/thirdweb.ts` exposes a reusable Thirdweb client for future wallet or SDK integrations.
+
+If you want to use Thirdweb features that need a client ID, set `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` in your environment.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
