@@ -1,5 +1,6 @@
 'use client';
 
+import { WalletActions } from '@/components/WalletActions';
 import { WalletHeader } from '@/components/WalletHeader';
 import { StatusCard } from '@/components/StatusCard';
 import { WalletSummary } from '@/components/WalletSummary';
@@ -32,24 +33,12 @@ export function WalletPanel() {
           <p>{isConnecting ? 'Connecting wallet...' : 'MiniPay injects a MetaMask-compatible provider.'}</p>
         </div>
 
-        <div className="flex gap-3">
-          <button
-            className="inline-flex h-11 items-center justify-center rounded-full bg-slate-950 px-5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300"
-            onClick={connectWallet}
-            type="button"
-            disabled={isConnected || isConnecting}
-          >
-            Connect wallet
-          </button>
-          <button
-            className="inline-flex h-11 items-center justify-center rounded-full border border-slate-300 px-5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/15 dark:text-slate-200 dark:hover:bg-white/10"
-            onClick={disconnect}
-            type="button"
-            disabled={!isConnected}
-          >
-            Disconnect
-          </button>
-        </div>
+        <WalletActions
+          isConnected={isConnected}
+          isConnecting={isConnecting}
+          onConnect={connectWallet}
+          onDisconnect={disconnect}
+        />
       </div>
     </section>
   );
