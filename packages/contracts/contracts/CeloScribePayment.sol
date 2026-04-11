@@ -17,34 +17,34 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     using SafeERC20 for IERC20;
 
-    // â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Constants ───────────────────────────────────────────────────────────
 
     /// @notice cUSD token address on Celo Mainnet
     address public constant CUSD_MAINNET = 0x765DE816845861e75A25fCA122bb6898B8B1282a;
 
-    // â”€â”€â”€ Task Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Task Types ──────────────────────────────────────────────────────────
 
     enum TaskType {
-        TEXT_SHORT, // $0.01 â€” up to 300 words
-        TEXT_LONG, // $0.05 â€” up to 1500 words
-        IMAGE, // $0.08 â€” image generation
-        TRANSLATE // $0.02 â€” language translation
+        TEXT_SHORT, // $0.01 — up to 300 words
+        TEXT_LONG, // $0.05 — up to 1500 words
+        IMAGE, // $0.08 — image generation
+        TRANSLATE // $0.02 — language translation
     }
 
-    // â”€â”€â”€ Pricing (in cUSD, 18 decimals) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Pricing (in cUSD, 18 decimals) ─────────────────────────────────────
 
     uint256 public constant PRICE_TEXT_SHORT = 0.01 ether; // 0.01 cUSD
     uint256 public constant PRICE_TEXT_LONG = 0.05 ether; // 0.05 cUSD
     uint256 public constant PRICE_IMAGE = 0.08 ether; // 0.08 cUSD
     uint256 public constant PRICE_TRANSLATE = 0.02 ether; // 0.02 cUSD
 
-    // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── State ───────────────────────────────────────────────────────────────
 
     IERC20 public immutable cusd;
     address public treasury;
     uint256 public totalPaymentsReceived;
 
-    // â”€â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Events ──────────────────────────────────────────────────────────────
 
     /// @notice Emitted on every successful task payment
     event PaymentReceived(address indexed user, TaskType indexed taskType, uint256 amount, uint256 timestamp);
@@ -55,14 +55,14 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     /// @notice Emitted when accumulated cUSD is withdrawn to treasury
     event TreasuryWithdrawal(address indexed treasury, uint256 amount);
 
-    // â”€â”€â”€ Errors â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Errors ──────────────────────────────────────────────────────────────
 
     error InsufficientPayment(uint256 required, uint256 provided);
     error ZeroAddress();
     error ZeroBalance();
     error InvalidTaskType();
 
-    // â”€â”€â”€ Constructor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Constructor ─────────────────────────────────────────────────────────
 
     /**
      * @param _cusd Address of the cUSD ERC-20 token
@@ -75,7 +75,7 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         treasury = _treasury;
     }
 
-    // â”€â”€â”€ External Functions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── External Functions ──────────────────────────────────────────────────
 
     /**
      * @notice Pay for an AI task. User must have approved this contract to spend cUSD.
