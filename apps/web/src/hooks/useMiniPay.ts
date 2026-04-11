@@ -3,16 +3,7 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 import { celo } from '@/lib/chains';
-
-/**
- * Detects if the current browser is MiniPay or a MiniPay-compatible wallet.
- * MiniPay injects window.ethereum with isMiniPay = true.
- */
-export function detectMiniPay(): boolean {
-  if (typeof window === 'undefined') return false;
-
-  return window.ethereum?.isMiniPay === true;
-}
+import { detectMiniPay } from '@/lib/minipay';
 
 export function useMiniPay() {
   const { address, isConnected, chain } = useAccount();
