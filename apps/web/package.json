@@ -12,8 +12,12 @@
   },
   "dependencies": {
     "next": "16.2.2",
+    "@tanstack/react-query": "5.97.0",
+    "thirdweb": "5.119.4",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "viem": "2.47.12",
+    "wagmi": "2.19.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
