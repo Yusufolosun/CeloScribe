@@ -1,24 +1,29 @@
 import { type Address } from 'viem';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TaskType, verifyPayment } from './verifyPayment';
 
-const mockState = vi.hoisted(() => ({
-  getLogsMock: vi.fn(),
-  getTransactionReceiptMock: vi.fn(),
-  loggerDebugMock: vi.fn(),
-  loggerErrorMock: vi.fn(),
-  loggerInfoMock: vi.fn(),
-  loggerWarnMock: vi.fn(),
-}));
+const mockState = vi.hoisted(() => {
+  const state = {
+    createPublicClientMock: vi.fn(),
+    getLogsMock: vi.fn(),
+    getTransactionReceiptMock: vi.fn(),
+    loggerDebugMock: vi.fn(),
+    loggerErrorMock: vi.fn(),
+    loggerInfoMock: vi.fn(),
+    loggerWarnMock: vi.fn(),
+  };
 
-const createPublicClientMock = vi.fn(() => ({
-  getLogs: mockState.getLogsMock,
-  getTransactionReceipt: mockState.getTransactionReceiptMock,
-}));
+  state.createPublicClientMock.mockImplementation(() => ({
+    getLogs: state.getLogsMock,
+    getTransactionReceipt: state.getTransactionReceiptMock,
+  }));
+
+  return state;
+});
 
 vi.mock('viem', () => ({
-  createPublicClient: createPublicClientMock,
+  createPublicClient: mockState.createPublicClientMock,
   http: vi.fn(),
   parseAbiItem: vi.fn((item: string) => item),
 }));
@@ -27,6 +32,13 @@ vi.mock('@/lib/env', () => ({
   env: {
     CELO_RPC_URL: 'http://localhost:8545',
     CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000001',
+  },
+}));
+
+vi.mock('@/lib/chains', () => ({
+  celo: {
+    id: 42220,
+    name: 'Celo',
   },
 }));
 
@@ -44,7 +56,7 @@ export const OTHER_USER = '0x0000000000000000000000000000000000000003' as Addres
 export const CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000001' as Address;
 
 export function resetVerifyPaymentMocks() {
-  createPublicClientMock.mockClear();
+  mockState.createPublicClientMock.mockClear();
   mockState.getLogsMock.mockReset();
   mockState.getTransactionReceiptMock.mockReset();
   mockState.loggerDebugMock.mockReset();
