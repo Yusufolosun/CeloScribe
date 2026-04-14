@@ -44,6 +44,11 @@ export async function verifyPayment(
     return { valid: false, reason: 'Transaction is not yet confirmed.' };
   }
 
+  if (receipt.to?.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
+    logger.warn({ msg: 'Payment verification failed', txHash, reason: 'wrong contract target' });
+    return { valid: false, reason: 'Transaction did not target CeloScribePayment contract.' };
+  }
+
   logger.debug({
     msg: 'Payment receipt fetched',
     txHash,
