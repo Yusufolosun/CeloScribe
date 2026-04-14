@@ -5,8 +5,15 @@ import { type Address, type Hash } from 'viem';
 import { routeTask } from '@/lib/ai/router';
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { isSupportedTaskType } from '@/lib/ai/taskValidation';
-import { badRequest, methodNotAllowed, paymentRequired, withErrorHandling } from '@/lib/api';
+import {
+  badRequest,
+  methodNotAllowed,
+  paymentRequired,
+  tooManyRequests,
+  withErrorHandling,
+} from '@/lib/api';
 import { TaskType as PaymentTaskType, verifyPayment } from '@/lib/payment/verifyPayment';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 interface GenerateRequest {
   txHash: Hash;
@@ -27,6 +34,12 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   if (!isSupportedTaskType(body.taskType)) {
     return badRequest(`Invalid taskType: ${body.taskType}`);
+  }
+
+  const rateLimit = checkRateLimit(body.userAddress);
+
+  if (!rateLimit.allowed) {
+    return tooManyRequests(rateLimit.retryAfterMs);
   }
 
   const paymentTaskType = PaymentTaskType[body.taskType as keyof typeof PaymentTaskType];
