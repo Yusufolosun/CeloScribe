@@ -103,4 +103,31 @@ describe('verifyPayment', () => {
       reason: 'No matching PaymentReceived event found for this user and task type.',
     });
   });
+
+  it('returns verified payment details for a matching receipt and log', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      blockNumber: 1n,
+      confirmations: 1,
+      status: 'success',
+      to: CONTRACT_ADDRESS,
+    });
+    mockState.getLogsMock.mockResolvedValue([
+      {
+        args: {
+          amount: 100n,
+          taskType: TaskType.TEXT_SHORT,
+          user: TEST_USER,
+        },
+      },
+    ]);
+
+    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      amount: 100n,
+      taskType: TaskType.TEXT_SHORT,
+      user: TEST_USER,
+      valid: true,
+    });
+  });
 });
