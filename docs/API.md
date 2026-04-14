@@ -6,7 +6,19 @@ The frontend web3 layer already exposes wallet connection state through Wagmi, b
 
 ## `POST /api/payment/verify`
 
-Documented in Prompt N. This route will confirm the cUSD payment that was initiated from the MiniPay-aware frontend.
+Verifies that a transaction hash corresponds to a confirmed `PaymentReceived` event emitted by `CeloScribePayment` for the expected wallet address and task type.
+
+Request body:
+
+- `txHash`: Ethereum transaction hash
+- `userAddress`: wallet address that should appear in the event log
+- `taskType`: one of `TEXT_SHORT`, `TEXT_LONG`, `IMAGE`, `TRANSLATE`
+
+Responses:
+
+- `200`: `{ verified: true, taskType }`
+- `400`: malformed input or unknown task type
+- `402`: receipt did not verify against the expected on-chain payment
 
 ## `POST /api/request`
 
