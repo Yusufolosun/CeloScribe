@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { PaymentModal } from '@/components/PaymentModal';
 import { ResultContainer } from '@/components/ResultContainer';
 import { TaskCard } from '@/components/TaskCard';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import { WalletBanner } from '@/components/WalletBanner';
 import { useMiniPay } from '@/hooks/useMiniPay';
 import { useTaskPayment } from '@/hooks/useTaskPayment';
@@ -25,6 +26,7 @@ export default function Home() {
     reset: resetPayment,
   } = useTaskPayment();
   const lastGeneratedTxHash = useRef<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
   const [prompt, setPrompt] = useState('');
   const [result, setResult] = useState<TaskResult | null>(null);
@@ -163,75 +165,109 @@ export default function Home() {
           <WalletBanner />
         </div>
 
-        <section className="task-flow__section mt-4" aria-labelledby="taskSelectionTitle">
-          <h2 id="taskSelectionTitle" className="task-flow__section-title">
-            Select a task
-          </h2>
-          <div className="task-flow__grid">
-            {TASK_TYPES.map((taskType) => (
-              <TaskCard
-                key={taskType}
-                taskType={taskType}
-                selected={selectedTask === taskType}
-                onSelect={handleSelectTask}
-                disabled={!isConnected}
-              />
-            ))}
+        <div className="task-tabs" role="tablist" aria-label="Main views">
+          <button
+            className={`task-tabs__button ${activeTab === 'generate' ? 'task-tabs__button--active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'generate'}
+            aria-controls="generateTabPanel"
+            onClick={() => setActiveTab('generate')}
+          >
+            Generate
+          </button>
+          <button
+            className={`task-tabs__button ${activeTab === 'history' ? 'task-tabs__button--active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'history'}
+            aria-controls="historyTabPanel"
+            onClick={() => setActiveTab('history')}
+          >
+            History
+          </button>
+        </div>
+
+        <div
+          className="mt-4"
+          role="tabpanel"
+          id="generateTabPanel"
+          hidden={activeTab !== 'generate'}
+        >
+          <section className="task-flow__section" aria-labelledby="taskSelectionTitle">
+            <h2 id="taskSelectionTitle" className="task-flow__section-title">
+              Select a task
+            </h2>
+            <div className="task-flow__grid">
+              {TASK_TYPES.map((taskType) => (
+                <TaskCard
+                  key={taskType}
+                  taskType={taskType}
+                  selected={selectedTask === taskType}
+                  onSelect={handleSelectTask}
+                  disabled={!isConnected}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="prompt-panel mt-4" aria-labelledby="promptTitle">
+            <div>
+              <p id="promptTitle" className="prompt-panel__label">
+                Your prompt
+              </p>
+              <p className="prompt-panel__hint">
+                {selectedTask
+                  ? `Selected ${TASK_PRICE_DISPLAY[selectedTask]} cUSD task. Max input ${selectedLimit ?? 0} characters.`
+                  : 'Select a task before writing your prompt.'}
+              </p>
+            </div>
+
+            <label className="sr-only" htmlFor="taskPrompt">
+              Task prompt
+            </label>
+            <textarea
+              id="taskPrompt"
+              className="prompt-panel__field"
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
+              placeholder="Describe what you want CeloScribe to generate..."
+              disabled={!selectedTask || !isConnected}
+              aria-describedby="promptTitle"
+              aria-invalid={Boolean(resultError)}
+            />
+
+            {resultError && (
+              <p className="prompt-panel__error" role="alert">
+                {resultError}
+              </p>
+            )}
+
+            <div className="prompt-panel__actions">
+              <button
+                className="btn btn--primary"
+                type="button"
+                onClick={handleOpenPayment}
+                disabled={!selectedTask || !prompt.trim() || !isConnected}
+                aria-disabled={!selectedTask || !prompt.trim() || !isConnected}
+              >
+                Pay and generate
+              </button>
+            </div>
+          </section>
+
+          <div className="mt-4">
+            <ResultContainer
+              result={result}
+              isLoading={isGenerating}
+              taskType={selectedTask}
+              prompt={prompt}
+            />
           </div>
-        </section>
+        </div>
 
-        <section className="prompt-panel mt-4" aria-labelledby="promptTitle">
-          <div>
-            <p id="promptTitle" className="prompt-panel__label">
-              Your prompt
-            </p>
-            <p className="prompt-panel__hint">
-              {selectedTask
-                ? `Selected ${TASK_PRICE_DISPLAY[selectedTask]} cUSD task. Max input ${selectedLimit ?? 0} characters.`
-                : 'Select a task before writing your prompt.'}
-            </p>
-          </div>
-
-          <label className="sr-only" htmlFor="taskPrompt">
-            Task prompt
-          </label>
-          <textarea
-            id="taskPrompt"
-            className="prompt-panel__field"
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder="Describe what you want CeloScribe to generate..."
-            disabled={!selectedTask || !isConnected}
-            aria-describedby="promptTitle"
-            aria-invalid={Boolean(resultError)}
-          />
-
-          {resultError && (
-            <p className="prompt-panel__error" role="alert">
-              {resultError}
-            </p>
-          )}
-
-          <div className="prompt-panel__actions">
-            <button
-              className="btn btn--primary"
-              type="button"
-              onClick={handleOpenPayment}
-              disabled={!selectedTask || !prompt.trim() || !isConnected}
-              aria-disabled={!selectedTask || !prompt.trim() || !isConnected}
-            >
-              Pay and generate
-            </button>
-          </div>
-        </section>
-
-        <div className="mt-4">
-          <ResultContainer
-            result={result}
-            isLoading={isGenerating}
-            taskType={selectedTask}
-            prompt={prompt}
-          />
+        <div className="mt-4" role="tabpanel" id="historyTabPanel" hidden={activeTab !== 'history'}>
+          <TransactionHistory userAddress={address} />
         </div>
 
         {isModalOpen && selectedTask && (
