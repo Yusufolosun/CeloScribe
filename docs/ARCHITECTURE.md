@@ -25,11 +25,20 @@ The payment contract workspace under `packages/contracts` defines the on-chain p
 
 ### Next.js API Routes
 
-The API route layer will run server-side inside the Next.js application. It will receive verified request metadata from the frontend, confirm that the on-chain payment exists, and coordinate the rest of the request lifecycle. This layer keeps secret values and backend logic out of the browser.
+The API route layer runs server-side inside the Next.js application. It receives verified request metadata from the frontend, confirms that the on-chain payment exists, and coordinates the rest of the request lifecycle. This layer keeps secret values and backend logic out of the browser.
+
+The `POST /api/task/generate` route is the main entry point for AI work. It validates the request, verifies payment, and then hands the request to the router without importing provider SDKs directly.
 
 ### AI Provider Routing
 
-The AI routing layer will map an approved request to the correct provider implementation. This layer is responsible for choosing the provider adapter, normalizing the request payload, and returning a response in a consistent format.
+The AI routing layer maps an approved request to the correct provider implementation. This layer is responsible for choosing the provider adapter, normalizing the request payload, and returning a response in a consistent format.
+
+Current routing rules:
+
+- `TEXT_SHORT` and `TRANSLATE` use DeepSeek through the OpenAI-compatible SDK.
+- `TEXT_LONG` uses Anthropic.
+- `IMAGE` uses fal.ai with safety checking enabled.
+- Token and size limits are enforced inside the provider layer, not the route.
 
 ### Response
 
@@ -54,4 +63,5 @@ The response is the final result returned to the user in the MiniApp UI. The res
 - Secret values must remain server-side in the API route layer.
 - The frontend owns presentation and request initiation, not provider credentials or payment validation.
 - Wallet connection state is part of the client experience, not proof of payment.
+- AI provider SDK usage stays inside `apps/web/src/lib/ai`.
 - Subsequent prompts will fill in the API routes, provider adapters, and request-specific contract behavior.
