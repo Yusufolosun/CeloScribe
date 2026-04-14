@@ -1,9 +1,31 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
+
 import { useMiniPay } from '@/hooks/useMiniPay';
 
 export function WalletBanner() {
   const { isConnected, isMiniPay, address, connectWallet } = useMiniPay();
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  if (!isMounted) {
+    return (
+      <div className="wallet-banner" aria-live="polite">
+        <button
+          onClick={connectWallet}
+          className="btn btn--primary"
+          type="button"
+          aria-label="Connect wallet"
+        >
+          Connect Wallet
+        </button>
+      </div>
+    );
+  }
 
   if (isConnected) {
     return (

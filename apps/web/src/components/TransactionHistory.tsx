@@ -1,5 +1,7 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
+
 import type { Address } from 'viem';
 
 import { useTransactionHistory } from '@/hooks/useTransactionHistory';
@@ -56,6 +58,29 @@ function HistorySkeleton() {
 export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
   const { history, isLoading, error } = useTransactionHistory(userAddress);
   const isConnected = Boolean(userAddress);
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  if (!isMounted) {
+    return (
+      <section className="transaction-history" aria-labelledby="historyTitle">
+        <div className="transaction-history__header">
+          <h2 id="historyTitle" className="transaction-history__title">
+            Transaction history
+          </h2>
+          <p className="transaction-history__subtitle">
+            PaymentReceived events are read directly from Celo, so the chain remains the source of
+            truth.
+          </p>
+        </div>
+
+        <HistorySkeleton />
+      </section>
+    );
+  }
 
   return (
     <section className="transaction-history" aria-labelledby="historyTitle">

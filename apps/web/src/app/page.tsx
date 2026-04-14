@@ -111,10 +111,6 @@ export default function Home() {
   }, [address, paymentState, prompt, selectedTask, txHash]);
 
   function handleSelectTask(taskType: TaskType) {
-    if (!isConnected) {
-      return;
-    }
-
     lastGeneratedTxHash.current = null;
     setSelectedTask(taskType);
     setResult(null);
@@ -124,7 +120,12 @@ export default function Home() {
   }
 
   function handleOpenPayment() {
-    if (!selectedTask || !prompt.trim() || !isConnected) {
+    if (!selectedTask || !prompt.trim()) {
+      return;
+    }
+
+    if (!isConnected) {
+      setResultError('Connect your wallet to continue.');
       return;
     }
 
@@ -205,7 +206,6 @@ export default function Home() {
                   taskType={taskType}
                   selected={selectedTask === taskType}
                   onSelect={handleSelectTask}
-                  disabled={!isConnected}
                 />
               ))}
             </div>
@@ -232,7 +232,7 @@ export default function Home() {
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
               placeholder="Describe what you want CeloScribe to generate..."
-              disabled={!selectedTask || !isConnected}
+              disabled={!selectedTask}
               aria-describedby="promptTitle"
               aria-invalid={Boolean(resultError)}
             />
@@ -248,8 +248,8 @@ export default function Home() {
                 className="btn btn--primary"
                 type="button"
                 onClick={handleOpenPayment}
-                disabled={!selectedTask || !prompt.trim() || !isConnected}
-                aria-disabled={!selectedTask || !prompt.trim() || !isConnected}
+                disabled={!selectedTask || !prompt.trim()}
+                aria-disabled={!selectedTask || !prompt.trim()}
               >
                 Pay and generate
               </button>
