@@ -1,4 +1,4 @@
-import { type Address, type Hash, createPublicClient, http } from 'viem';
+import { type Address, type Hash, createPublicClient, http, parseAbiItem } from 'viem';
 
 import { celo } from '@/lib/chains';
 import { env } from '@/lib/env';
@@ -58,8 +58,49 @@ export async function verifyPayment(
     contractAddress: CONTRACT_ADDRESS,
   });
 
+  const paymentReceivedEvent = parseAbiItem(
+    'event PaymentReceived(address indexed user, uint8 indexed taskType, uint256 amount, uint256 timestamp)'
+  );
+
+  const logs = await client.getLogs({
+    address: CONTRACT_ADDRESS,
+    event: paymentReceivedEvent,
+    fromBlock: receipt.blockNumber,
+    toBlock: receipt.blockNumber,
+  });
+
+  const matchingLog = logs.find((log) => {
+    const { user, taskType } = log.args as { user: Address; taskType: number };
+
+    return user.toLowerCase() === expectedUser.toLowerCase() && taskType === expectedTaskType;
+  });
+
+  if (!matchingLog) {
+    logger.warn({ msg: 'Payment verification failed', txHash, reason: 'no matching event' });
+    return {
+      valid: false,
+      reason: 'No matching PaymentReceived event found for this user and task type.',
+    };
+  }
+
+  const { user, taskType, amount } = matchingLog.args as {
+    user: Address;
+    taskType: number;
+    amount: bigint;
+  };
+
+  logger.info({
+    msg: 'Payment verified',
+    txHash,
+    user,
+    taskType,
+    amount: amount.toString(),
+  });
+
   return {
-    valid: false,
-    reason: 'Payment verification not implemented yet.',
+    valid: true,
+    user,
+    taskType: taskType as TaskType,
+    amount,
   };
 }
