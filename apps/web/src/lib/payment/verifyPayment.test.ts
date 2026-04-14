@@ -86,4 +86,21 @@ describe('verifyPayment', () => {
       reason: 'Transaction did not target CeloScribePayment contract.',
     });
   });
+
+  it('returns invalid when no matching payment log is found', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      blockNumber: 1n,
+      confirmations: 1,
+      status: 'success',
+      to: CONTRACT_ADDRESS,
+    });
+    mockState.getLogsMock.mockResolvedValue([]);
+
+    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      valid: false,
+      reason: 'No matching PaymentReceived event found for this user and task type.',
+    });
+  });
 });
