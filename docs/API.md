@@ -24,6 +24,25 @@ Responses:
 
 Documented in Prompt N. This route should only proceed after the payment verification route succeeds.
 
+## `POST /api/task/generate`
+
+Verifies the on-chain payment for a task request, routes the request to the appropriate AI provider, and returns the generated result.
+
+Request body:
+
+- `txHash`: transaction hash for the payment
+- `userAddress`: wallet address that must match the payment event
+- `taskType`: one of `TEXT_SHORT`, `TEXT_LONG`, `IMAGE`, `TRANSLATE`
+- `prompt`: the task prompt text
+- `targetLanguage`: required for `TRANSLATE` requests
+
+Responses:
+
+- `200`: provider result payload containing `taskType`, `output`, `provider`, `tokensUsed?`, and `processingMs`
+- `400`: malformed input or unknown task type
+- `402`: payment verification failed
+- `500`: uncaught provider or server errors
+
 ## `GET /api/health`
 
 Documented in Prompt N.
