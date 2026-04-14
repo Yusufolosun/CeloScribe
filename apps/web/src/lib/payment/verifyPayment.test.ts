@@ -1,6 +1,8 @@
 import { type Address } from 'viem';
 import { vi } from 'vitest';
 
+import { TaskType, verifyPayment } from './verifyPayment';
+
 const mockState = vi.hoisted(() => ({
   getLogsMock: vi.fn(),
   getTransactionReceiptMock: vi.fn(),
@@ -50,3 +52,22 @@ export function resetVerifyPaymentMocks() {
   mockState.loggerInfoMock.mockReset();
   mockState.loggerWarnMock.mockReset();
 }
+
+describe('verifyPayment', () => {
+  beforeEach(() => {
+    resetVerifyPaymentMocks();
+  });
+
+  it('returns invalid for a reverted receipt', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      status: 'reverted',
+    });
+
+    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      valid: false,
+      reason: 'Transaction reverted or failed.',
+    });
+  });
+});
