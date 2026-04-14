@@ -359,6 +359,226 @@
   padding: 1rem;
 }
 
+.result-card {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.result-card__header,
+.translation-block__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.result-card__header--stacked {
+  align-items: center;
+}
+
+.result-card__eyebrow {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.result-card__meta {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.result-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.result-card__count {
+  align-self: center;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.result-card__copy,
+.result-card__download {
+  min-height: 2.4rem;
+  padding: 0.65rem 0.95rem;
+}
+
+.result-card__body {
+  border: 1px solid color-mix(in srgb, var(--color-border) 92%, transparent);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+  padding: 1rem;
+}
+
+.result-card__body--empty {
+  color: var(--color-muted);
+}
+
+.result-card__text,
+.translation-block__text,
+.result-card__empty,
+.result-image__fallback-text,
+.result-image__fallback-title {
+  margin: 0;
+}
+
+.result-card__text,
+.translation-block__text {
+  white-space: pre-wrap;
+  color: var(--color-text);
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.result-card__empty {
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.result-image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-border) 92%, transparent);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+}
+
+.result-image__media {
+  object-fit: contain;
+}
+
+.result-image__fallback {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  height: 100%;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.result-image__fallback-title {
+  color: var(--color-text);
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.result-image__fallback-text {
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.translation-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.translation-block {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.translation-block__body {
+  min-height: 8rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 92%, transparent);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+  padding: 1rem;
+}
+
+.translation-block__body--empty {
+  display: grid;
+  place-items: center;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.text-skeleton {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--color-border) 92%, transparent);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+  padding: 1rem;
+}
+
+.text-skeleton__label {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.text-skeleton__line {
+  position: relative;
+  display: block;
+  height: 0.85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.text-skeleton__line::after,
+.image-skeleton__shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+  animation: shimmer 1.35s infinite;
+}
+
+.image-skeleton {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-border) 92%, transparent);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+}
+
+.image-skeleton__shimmer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.image-skeleton__spinner {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 2rem;
+  height: 2rem;
+  margin: -1rem 0 0 -1rem;
+  border: 2px solid rgba(148, 163, 184, 0.22);
+  border-top-color: var(--color-accent);
+  border-radius: 999px;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .result-panel__output {
   margin: 0;
   white-space: pre-wrap;
@@ -380,5 +600,9 @@
 
   .modal-overlay {
     place-items: center;
+  }
+
+  .translation-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
