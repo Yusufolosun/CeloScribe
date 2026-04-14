@@ -1,0 +1,18 @@
+:root {
+  --color-bg: #0a0f1e;
+  --color-surface: #111827;
+  --color-border: #1e293b;
+  --color-accent: #35d07f;
+  --color-accent-dim: #1a6b3f;
+  --color-text: #f1f5f9;
+  --color-muted: #64748b;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
