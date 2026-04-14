@@ -32,14 +32,26 @@ export async function verifyPayment(
   expectedUser: Address,
   expectedTaskType: TaskType
 ): Promise<VerificationResult> {
+  const receipt = await client.getTransactionReceipt({ hash: txHash });
+
+  if (receipt.status !== 'success') {
+    logger.warn({ msg: 'Payment verification failed', txHash, reason: 'reverted receipt' });
+    return { valid: false, reason: 'Transaction reverted or failed.' };
+  }
+
+  if ((receipt.confirmations ?? 0) < 1) {
+    logger.warn({ msg: 'Payment verification failed', txHash, reason: 'unconfirmed receipt' });
+    return { valid: false, reason: 'Transaction is not yet confirmed.' };
+  }
+
   logger.debug({
-    msg: 'Payment verification stub',
+    msg: 'Payment receipt fetched',
     txHash,
     expectedUser,
     expectedTaskType,
+    blockNumber: receipt.blockNumber,
     contractAddress: CONTRACT_ADDRESS,
   });
-  void client;
 
   return {
     valid: false,
