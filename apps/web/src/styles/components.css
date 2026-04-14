@@ -57,6 +57,37 @@
   font-weight: 700;
 }
 
+.task-tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.92);
+  padding: 0.35rem;
+}
+
+.task-tabs__button {
+  min-height: 2.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.55rem 0.95rem;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.task-tabs__button--active {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 88%, white), var(--color-accent));
+  color: #062a16;
+}
+
+.task-tabs__button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .task-flow__grid {
   display: grid;
   gap: 0.75rem;
@@ -357,6 +388,210 @@
   border-radius: 1.25rem;
   background: rgba(17, 24, 39, 0.96);
   padding: 1rem;
+}
+
+.transaction-history {
+  display: grid;
+  gap: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: rgba(17, 24, 39, 0.96);
+  padding: 1rem;
+}
+
+.transaction-history__header {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.transaction-history__title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.transaction-history__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.transaction-history__list,
+.transaction-history__skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.transaction-history__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.transaction-history__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+  padding: 0.9rem;
+}
+
+.transaction-history__item--skeleton {
+  opacity: 0.82;
+}
+
+.transaction-history__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.1);
+  font-size: 1.15rem;
+}
+
+.transaction-history__icon--skeleton {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.transaction-history__body {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.transaction-history__task,
+.transaction-history__hash,
+.transaction-history__price,
+.transaction-history__date,
+.transaction-history__empty-title,
+.transaction-history__empty-copy,
+.transaction-history__error {
+  margin: 0;
+}
+
+.transaction-history__task {
+  color: var(--color-text);
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.transaction-history__hash {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+
+.transaction-history__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.transaction-history__link:hover,
+.transaction-history__link:focus-visible {
+  color: var(--color-accent);
+}
+
+.transaction-history__meta {
+  display: grid;
+  justify-items: end;
+  gap: 0.2rem;
+  text-align: right;
+}
+
+.transaction-history__price {
+  color: var(--color-accent);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.transaction-history__date {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+}
+
+.transaction-history__empty,
+.transaction-history__error {
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: rgba(10, 15, 30, 0.96);
+  padding: 1rem;
+}
+
+.transaction-history__empty {
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.transaction-history__empty-title {
+  color: var(--color-text);
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.transaction-history__empty-copy {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.transaction-history__error {
+  border-left: 3px solid var(--color-error);
+  color: #fecaca;
+  line-height: 1.5;
+}
+
+.transaction-history__skeleton {
+  grid-template-columns: 1fr;
+}
+
+.transaction-history__body--skeleton,
+.transaction-history__meta--skeleton {
+  gap: 0.45rem;
+}
+
+.transaction-history__line {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.22), rgba(148, 163, 184, 0.12));
+  background-size: 200% 100%;
+  animation: transaction-history-shimmer 1.4s ease-in-out infinite;
+}
+
+.transaction-history__line--title {
+  width: 9rem;
+  height: 0.9rem;
+}
+
+.transaction-history__line--meta {
+  width: 13rem;
+  height: 0.72rem;
+}
+
+.transaction-history__line--price {
+  width: 4.75rem;
+  height: 0.82rem;
+}
+
+.transaction-history__line--date {
+  width: 7.5rem;
+  height: 0.72rem;
+}
+
+@keyframes transaction-history-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .result-card {
