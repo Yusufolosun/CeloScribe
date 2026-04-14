@@ -23,6 +23,8 @@ cp .env.example .env.local
 
 If you are not configuring environment variables yet, the copied file can remain empty until later prompts add runtime settings.
 
+The web app now expects AI provider credentials for DeepSeek, Anthropic, and fal.ai in addition to the existing blockchain and Thirdweb values.
+
 ## Development Commands
 
 ```bash
@@ -38,6 +40,7 @@ For frontend work specifically, you can run the app directly from `apps/web`:
 pnpm --dir apps/web dev
 pnpm --dir apps/web build
 pnpm --dir apps/web lint
+pnpm --dir apps/web exec vitest run src/lib/ai/**/*.test.ts
 ```
 
 ## Repository Structure
