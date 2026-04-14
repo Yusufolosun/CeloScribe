@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { PaymentModal } from '@/components/PaymentModal';
+import { ResultContainer } from '@/components/ResultContainer';
 import { TaskCard } from '@/components/TaskCard';
 import { WalletBanner } from '@/components/WalletBanner';
 import { useMiniPay } from '@/hooks/useMiniPay';
 import { useTaskPayment } from '@/hooks/useTaskPayment';
+import type { TaskResult } from '@/lib/ai/taskTypes';
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { TASK_LIMITS } from '@/lib/ai/taskTypes';
 import { TASK_PRICE_DISPLAY } from '@/lib/payment/taskPrices';
@@ -25,8 +27,7 @@ export default function Home() {
   const lastGeneratedTxHash = useRef<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
   const [prompt, setPrompt] = useState('');
-  const [result, setResult] = useState<string | null>(null);
-  const [resultMeta, setResultMeta] = useState<string | null>(null);
+  const [result, setResult] = useState<TaskResult | null>(null);
   const [resultError, setResultError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -69,9 +70,7 @@ export default function Home() {
           }),
         });
 
-        const payload = (await response.json()) as
-          | { error?: string }
-          | { output: string; provider: string; processingMs: number };
+        const payload = (await response.json()) as { error?: string } | TaskResult;
 
         if (!response.ok) {
           const message =
@@ -87,8 +86,7 @@ export default function Home() {
           return;
         }
 
-        setResult(payload.output);
-        setResultMeta(`${payload.provider} · ${payload.processingMs}ms`);
+        setResult(payload);
         setIsModalOpen(false);
       } catch (error) {
         if (!isActive) {
@@ -118,7 +116,6 @@ export default function Home() {
     lastGeneratedTxHash.current = null;
     setSelectedTask(taskType);
     setResult(null);
-    setResultMeta(null);
     setResultError(null);
     setIsModalOpen(false);
     resetPayment();
@@ -131,7 +128,6 @@ export default function Home() {
 
     lastGeneratedTxHash.current = null;
     setResult(null);
-    setResultMeta(null);
     setResultError(null);
     setIsModalOpen(true);
   }
@@ -229,15 +225,14 @@ export default function Home() {
           </div>
         </section>
 
-        {(result || resultMeta) && (
-          <section className="result-panel mt-4" aria-labelledby="resultTitle">
-            <p id="resultTitle" className="result-panel__label">
-              Latest result
-            </p>
-            {resultMeta && <p className="result-panel__meta">{resultMeta}</p>}
-            {result && <p className="result-panel__output">{result}</p>}
-          </section>
-        )}
+        <div className="mt-4">
+          <ResultContainer
+            result={result}
+            isLoading={isGenerating}
+            taskType={selectedTask}
+            prompt={prompt}
+          />
+        </div>
 
         {isModalOpen && selectedTask && (
           <PaymentModal
@@ -247,12 +242,6 @@ export default function Home() {
             onConfirm={handleConfirmPayment}
             onCancel={handleCancelPayment}
           />
-        )}
-
-        {isGenerating && (
-          <p className="result-panel__meta mt-4" aria-live="polite">
-            Generating your result...
-          </p>
         )}
       </div>
     </main>

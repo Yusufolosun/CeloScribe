@@ -39,7 +39,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const result = await routeTask({
     taskType: body.taskType,
     prompt: body.prompt,
-    targetLanguage: body.targetLanguage,
+    ...(body.targetLanguage ? { targetLanguage: body.targetLanguage } : {}),
   });
 
   return NextResponse.json(result);
