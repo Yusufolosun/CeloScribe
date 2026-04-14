@@ -70,4 +70,20 @@ describe('verifyPayment', () => {
       reason: 'Transaction reverted or failed.',
     });
   });
+
+  it('returns invalid when the transaction targeted another contract', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      blockNumber: 1n,
+      confirmations: 1,
+      status: 'success',
+      to: OTHER_USER,
+    });
+
+    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      valid: false,
+      reason: 'Transaction did not target CeloScribePayment contract.',
+    });
+  });
 });
