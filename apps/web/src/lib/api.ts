@@ -58,3 +58,18 @@ export function badRequest(message: string): NextResponse {
 export function paymentRequired(message: string): NextResponse {
   return NextResponse.json({ error: message }, { status: 402 });
 }
+
+/**
+ * Returns a standardized 429 response for rate limit violations.
+ */
+export function tooManyRequests(retryAfterMs: number): NextResponse {
+  const retryAfterSeconds = Math.ceil(retryAfterMs / 1000);
+
+  return NextResponse.json(
+    { error: `Rate limit exceeded. Try again in ${retryAfterSeconds} seconds.` },
+    {
+      headers: { 'Retry-After': String(retryAfterSeconds) },
+      status: 429,
+    }
+  );
+}
