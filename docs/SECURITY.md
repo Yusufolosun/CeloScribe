@@ -24,7 +24,15 @@ Rate limiting will be enforced on the server side in the Next.js API layer once 
 
 ## On-Chain Payment Verification
 
-On-chain payment verification is the security boundary for paid requests. A request may proceed only after the backend verifies that the required cUSD payment was recorded on-chain for the intended request type. The frontend may initiate the flow, but it must never be treated as proof of payment.
+On-chain payment verification is the security boundary for paid requests. A request may proceed only after the backend verifies that the required cUSD payment was recorded on-chain for the intended request type.
+
+The verifier must check all of the following before allowing work to continue:
+
+- The receipt must be successful and confirmed.
+- The receipt target must match the deployed `CeloScribePayment` contract.
+- The receipt logs must contain a matching `PaymentReceived` event for the expected wallet and task type.
+
+The frontend may initiate the flow, but it must never be treated as proof of payment.
 
 MiniPay detection in the browser is only a convenience signal for the UI. It does not authorize a request and it does not replace backend verification.
 
