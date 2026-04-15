@@ -103,6 +103,26 @@ describe('POST /api/task/generate', () => {
     expect(mockState.routeTaskMock).not.toHaveBeenCalled();
   });
 
+  it('rejects prototype task keys before payment verification', async () => {
+    const request = new Request('http://localhost/api/task/generate', {
+      body: JSON.stringify({
+        prompt: 'Generate a short caption.',
+        taskType: 'toString',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+    const payload = (await response.json()) as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(payload.error).toContain('Invalid taskType');
+    expect(mockState.verifyPaymentMock).not.toHaveBeenCalled();
+    expect(mockState.routeTaskMock).not.toHaveBeenCalled();
+  });
+
   it('returns payment required when verification fails', async () => {
     mockState.verifyPaymentMock.mockResolvedValue({
       reason: 'Transaction not confirmed.',

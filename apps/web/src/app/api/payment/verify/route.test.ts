@@ -71,4 +71,24 @@ describe('POST /api/payment/verify', () => {
     expect(payload.error).toContain('Invalid taskType');
     expect(verifyPaymentMock).not.toHaveBeenCalled();
   });
+
+  it('rejects prototype task keys', async () => {
+    const request = new Request('http://localhost/api/payment/verify', {
+      body: JSON.stringify({
+        taskType: 'toString',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+    const payload = (await response.json()) as {
+      error: string;
+    };
+
+    expect(response.status).toBe(400);
+    expect(payload.error).toContain('Invalid taskType');
+    expect(verifyPaymentMock).not.toHaveBeenCalled();
+  });
 });

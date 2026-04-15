@@ -15,17 +15,18 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   if (req.method !== 'POST') return methodNotAllowed(['POST']);
 
   const body = (await req.json()) as Partial<VerifyPaymentRequest>;
+  const validTaskTypeNames = Object.keys(TaskType).filter((key) => Number.isNaN(Number(key)));
 
   if (!body.txHash || !body.userAddress || body.taskType === undefined) {
     return badRequest('Required fields: txHash, userAddress, taskType');
   }
 
-  if (!(body.taskType in TaskType)) {
-    return badRequest(`Invalid taskType. Must be one of: ${Object.keys(TaskType).join(', ')}`);
+  const taskTypeValue = TaskType[body.taskType as keyof typeof TaskType];
+  if (typeof taskTypeValue !== 'number') {
+    return badRequest(`Invalid taskType. Must be one of: ${validTaskTypeNames.join(', ')}`);
   }
 
-  const taskType = TaskType[body.taskType as keyof typeof TaskType];
-  const result = await verifyPayment(body.txHash, body.userAddress, taskType);
+  const result = await verifyPayment(body.txHash, body.userAddress, taskTypeValue);
 
   if (!result.valid) {
     return paymentRequired(result.reason ?? 'Payment verification failed.');
