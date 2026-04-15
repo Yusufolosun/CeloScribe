@@ -34,6 +34,7 @@ export async function verifyPayment(
   expectedTaskType: TaskType
 ): Promise<VerificationResult> {
   const receipt = await client.getTransactionReceipt({ hash: txHash });
+  const expectedTxHash = txHash.toLowerCase();
 
   if (receipt.status !== 'success') {
     logger.warn({ msg: 'Payment verification failed', txHash, reason: 'reverted receipt' });
@@ -77,6 +78,10 @@ export async function verifyPayment(
   });
 
   const matchingLog = logs.find((log) => {
+    if (log.transactionHash?.toLowerCase() !== expectedTxHash) {
+      return false;
+    }
+
     const { user, taskType } = log.args as { user: Address; taskType: number };
 
     return user.toLowerCase() === expectedUser.toLowerCase() && taskType === expectedTaskType;

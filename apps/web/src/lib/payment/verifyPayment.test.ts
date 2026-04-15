@@ -1,4 +1,4 @@
-import { type Address } from 'viem';
+import { type Address, type Hash } from 'viem';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TaskType, verifyPayment } from './verifyPayment';
@@ -55,6 +55,8 @@ vi.mock('@/lib/logger', () => ({
 export const TEST_USER = '0x0000000000000000000000000000000000000002' as Address;
 export const OTHER_USER = '0x0000000000000000000000000000000000000003' as Address;
 export const CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000001' as Address;
+export const TEST_TX_HASH =
+  '0x1111111111111111111111111111111111111111111111111111111111111111' as Hash;
 
 export function resetVerifyPaymentMocks() {
   mockState.createPublicClientMock.mockClear();
@@ -76,7 +78,7 @@ describe('verifyPayment', () => {
       status: 'reverted',
     });
 
-    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
 
     expect(result).toEqual({
       valid: false,
@@ -92,7 +94,7 @@ describe('verifyPayment', () => {
       to: OTHER_USER,
     });
 
-    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
 
     expect(result).toEqual({
       valid: false,
@@ -109,7 +111,7 @@ describe('verifyPayment', () => {
     });
     mockState.getLogsMock.mockResolvedValue([]);
 
-    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
 
     expect(result).toEqual({
       valid: false,
@@ -126,6 +128,7 @@ describe('verifyPayment', () => {
     });
     mockState.getLogsMock.mockResolvedValue([
       {
+        transactionHash: TEST_TX_HASH,
         args: {
           amount: 100n,
           taskType: TaskType.TEXT_SHORT,
@@ -134,7 +137,7 @@ describe('verifyPayment', () => {
       },
     ]);
 
-    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
 
     expect(result).toEqual({
       amount: 100n,
@@ -152,11 +155,45 @@ describe('verifyPayment', () => {
       to: CONTRACT_ADDRESS,
     });
 
-    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
 
     expect(result).toEqual({
       valid: false,
       reason: 'Transaction needs at least 3 confirmations.',
+    });
+  });
+
+  it('ignores matching logs from other transactions in the same block', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      blockNumber: 1n,
+      confirmations: 3,
+      status: 'success',
+      to: CONTRACT_ADDRESS,
+    });
+    mockState.getLogsMock.mockResolvedValue([
+      {
+        transactionHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
+        args: {
+          amount: 100n,
+          taskType: TaskType.TEXT_SHORT,
+          user: TEST_USER,
+        },
+      },
+      {
+        transactionHash: TEST_TX_HASH,
+        args: {
+          amount: 100n,
+          taskType: TaskType.TEXT_SHORT,
+          user: OTHER_USER,
+        },
+      },
+    ]);
+
+    const result = await verifyPayment(TEST_TX_HASH, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      valid: false,
+      reason: 'No matching PaymentReceived event found for this user and task type.',
     });
   });
 });
