@@ -6,6 +6,15 @@ Pay-per-use AI access on Celo, built as a MiniApp and backed by on-chain cUSD pa
 
 CeloScribe is a Celo-based MiniApp that will let users pay for AI access one request at a time instead of subscribing to a monthly plan. The payment boundary is on-chain: a user approves a cUSD payment through a Celo-compatible wallet, and the application uses that verified payment as the basis for delivering the requested AI result. The repository currently contains the Next.js frontend scaffold, the payment contract workspace, and the documentation and tooling needed for the system that will be completed in later prompts.
 
+## Composer Alignment
+
+CeloScribe keeps the monorepo shape and MiniPay wallet patterns that Celo Composer emphasizes, but it is customized for the CeloScribe product flow.
+
+- `apps/web` keeps the explicit MiniPay connect flow, chain guards, and live CELO/cUSD balance summary.
+- `packages/contracts` contains the payment contract workspace.
+- The project intentionally does not force MiniPay auto-connect so wallet consent stays explicit.
+- See [docs/COMPOSER.md](docs/COMPOSER.md) for the upstream Composer notes and mapping.
+
 ## Prerequisites
 
 - Node.js 20 or later

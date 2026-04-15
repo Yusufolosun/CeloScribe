@@ -25,8 +25,9 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 The app shell now mounts a client-side Web3 provider that combines Wagmi v2, Viem, and React Query for Celo mainnet and Alfajores support.
 
 - `src/lib/chains.ts` centralizes the Celo chain definitions and the cUSD contract address.
-- `src/lib/wagmi.ts` configures Wagmi with the injected MetaMask-compatible connector MiniPay exposes.
+- `src/lib/wagmi.ts` configures Wagmi with a MiniPay-aware injected connector that still works with other EIP-1193 wallets.
 - `src/hooks/useMiniPay.ts` exposes wallet state, MiniPay detection, and connect/disconnect actions.
+- `src/components/WalletSummary.tsx` shows live CELO and cUSD balances so the wallet panel mirrors the Composer Minipay balance pattern.
 - `src/hooks/useCusdApproval.ts` and `src/hooks/useTaskPayment.ts` handle the client payment flow with receipt confirmation.
 - `src/lib/payment/taskPrices.ts` mirrors the on-chain task prices for UI display and payment checks.
 - `src/lib/thirdweb.ts` exposes a reusable Thirdweb client for future wallet or SDK integrations.
