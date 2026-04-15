@@ -3,17 +3,19 @@
 import { useCallback, useState } from 'react';
 
 import { type Hash } from 'viem';
-import { useAccount, usePublicClient, useWriteContract } from 'wagmi';
+import { useAccount, useChainId, usePublicClient, useWriteContract } from 'wagmi';
 
 import type { TaskType } from '@/lib/ai/taskTypes';
+import { celo } from '@/lib/chains';
 import { CELOSCRIBE_PAYMENT_ABI } from '@/lib/contracts/CeloScribePayment.abi';
 import { TASK_PRICES } from '@/lib/payment/taskPrices';
+import { requirePublicEnv } from '@/lib/publicEnv';
 
 import { useCusdApproval } from './useCusdApproval';
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS as
-  | `0x${string}`
-  | undefined;
+const CONTRACT_ADDRESS = requirePublicEnv(
+  'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
+) as `0x${string}`;
 
 const TASK_TYPE_INDEX: Record<TaskType, number> = {
   TEXT_SHORT: 0,
@@ -40,16 +42,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
   return fallback;
 }
 
-function getContractAddress(): `0x${string}` {
-  if (!CONTRACT_ADDRESS) {
-    throw new Error('Missing NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS.');
-  }
-
-  return CONTRACT_ADDRESS;
-}
-
 export function useTaskPayment(): UseTaskPaymentReturn {
   const { address } = useAccount();
+  const chainId = useChainId();
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
   const { approve } = useCusdApproval();
@@ -72,6 +67,12 @@ export function useTaskPayment(): UseTaskPaymentReturn {
         return null;
       }
 
+      if (chainId !== celo.id) {
+        setState('error');
+        setError('Switch to Celo mainnet to continue.');
+        return null;
+      }
+
       if (!publicClient) {
         setState('error');
         setError('Blockchain client is unavailable.');
@@ -83,7 +84,7 @@ export function useTaskPayment(): UseTaskPaymentReturn {
       setError(null);
 
       try {
-        const contractAddress = getContractAddress();
+        const contractAddress = CONTRACT_ADDRESS;
         const amount = TASK_PRICES[taskType];
         const approvalHash = await approve(contractAddress, amount);
 
@@ -116,7 +117,7 @@ export function useTaskPayment(): UseTaskPaymentReturn {
         return null;
       }
     },
-    [address, approve, publicClient, writeContractAsync]
+    [address, approve, chainId, publicClient, writeContractAsync]
   );
 
   return { pay, state, txHash, error, reset };

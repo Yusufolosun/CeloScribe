@@ -17,7 +17,7 @@ import { TASK_PRICE_DISPLAY } from '@/lib/payment/taskPrices';
 const TASK_TYPES: TaskType[] = ['TEXT_SHORT', 'TEXT_LONG', 'IMAGE', 'TRANSLATE'];
 
 export default function Home() {
-  const { address, isConnected } = useMiniPay();
+  const { address, isConnected, isOnCelo } = useMiniPay();
   const {
     pay,
     state: paymentState,
@@ -126,6 +126,11 @@ export default function Home() {
 
     if (!isConnected) {
       setResultError('Connect your wallet to continue.');
+      return;
+    }
+
+    if (!isOnCelo) {
+      setResultError('Switch to Celo mainnet to continue.');
       return;
     }
 

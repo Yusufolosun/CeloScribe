@@ -6,6 +6,7 @@ import { type Address, createPublicClient, formatEther, http, parseAbiItem } fro
 
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { celo } from '@/lib/chains';
+import { optionalPublicEnv, requirePublicEnv } from '@/lib/publicEnv';
 
 const TASK_NAMES: Record<number, TaskType> = {
   0: 'TEXT_SHORT',
@@ -22,19 +23,13 @@ export interface HistoryEntry {
   timestamp?: number;
 }
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS as Address | undefined;
+const CONTRACT_ADDRESS = requirePublicEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS') as Address;
 
 const paymentEvent = parseAbiItem(
   'event PaymentReceived(address indexed user, uint8 indexed taskType, uint256 amount, uint256 timestamp)'
 );
 
-function getContractAddress(): Address {
-  if (!CONTRACT_ADDRESS) {
-    throw new Error('Missing NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS.');
-  }
-
-  return CONTRACT_ADDRESS;
-}
+const CELO_RPC_URL = optionalPublicEnv('NEXT_PUBLIC_CELO_RPC_URL', 'https://forno.celo.org');
 
 export function useTransactionHistory(userAddress: Address | undefined) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -58,11 +53,11 @@ export function useTransactionHistory(userAddress: Address | undefined) {
       try {
         const client = createPublicClient({
           chain: celo,
-          transport: http('https://forno.celo.org'),
+          transport: http(CELO_RPC_URL),
         });
 
         const logs = await client.getLogs({
-          address: getContractAddress(),
+          address: CONTRACT_ADDRESS,
           event: paymentEvent,
           args: { user: userAddress },
           fromBlock: BigInt(0), // Replace with the deployment block number in production to avoid scanning the entire chain history.
