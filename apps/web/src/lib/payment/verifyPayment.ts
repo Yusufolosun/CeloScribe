@@ -26,6 +26,7 @@ const client = createPublicClient({
 });
 
 const CONTRACT_ADDRESS = env.CONTRACT_ADDRESS as Address;
+const MIN_CONFIRMATIONS = env.NODE_ENV === 'production' ? 3 : 1;
 
 export async function verifyPayment(
   txHash: Hash,
@@ -39,9 +40,15 @@ export async function verifyPayment(
     return { valid: false, reason: 'Transaction reverted or failed.' };
   }
 
-  if ((receipt.confirmations ?? 0) < 1) {
+  if ((receipt.confirmations ?? 0) < MIN_CONFIRMATIONS) {
     logger.warn({ msg: 'Payment verification failed', txHash, reason: 'unconfirmed receipt' });
-    return { valid: false, reason: 'Transaction is not yet confirmed.' };
+    return {
+      valid: false,
+      reason:
+        MIN_CONFIRMATIONS === 1
+          ? 'Transaction is not yet confirmed.'
+          : `Transaction needs at least ${MIN_CONFIRMATIONS} confirmations.`,
+    };
   }
 
   if (receipt.to?.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {

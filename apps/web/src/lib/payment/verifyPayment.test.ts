@@ -32,6 +32,7 @@ vi.mock('@/lib/env', () => ({
   env: {
     CELO_RPC_URL: 'http://localhost:8545',
     CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000001',
+    NODE_ENV: 'production',
   },
 }));
 
@@ -86,7 +87,7 @@ describe('verifyPayment', () => {
   it('returns invalid when the transaction targeted another contract', async () => {
     mockState.getTransactionReceiptMock.mockResolvedValue({
       blockNumber: 1n,
-      confirmations: 1,
+      confirmations: 3,
       status: 'success',
       to: OTHER_USER,
     });
@@ -102,7 +103,7 @@ describe('verifyPayment', () => {
   it('returns invalid when no matching payment log is found', async () => {
     mockState.getTransactionReceiptMock.mockResolvedValue({
       blockNumber: 1n,
-      confirmations: 1,
+      confirmations: 3,
       status: 'success',
       to: CONTRACT_ADDRESS,
     });
@@ -119,7 +120,7 @@ describe('verifyPayment', () => {
   it('returns verified payment details for a matching receipt and log', async () => {
     mockState.getTransactionReceiptMock.mockResolvedValue({
       blockNumber: 1n,
-      confirmations: 1,
+      confirmations: 3,
       status: 'success',
       to: CONTRACT_ADDRESS,
     });
@@ -140,6 +141,22 @@ describe('verifyPayment', () => {
       taskType: TaskType.TEXT_SHORT,
       user: TEST_USER,
       valid: true,
+    });
+  });
+
+  it('returns invalid when the receipt has not reached the production confirmation threshold', async () => {
+    mockState.getTransactionReceiptMock.mockResolvedValue({
+      blockNumber: 1n,
+      confirmations: 2,
+      status: 'success',
+      to: CONTRACT_ADDRESS,
+    });
+
+    const result = await verifyPayment(TEST_USER, TEST_USER, TaskType.TEXT_SHORT);
+
+    expect(result).toEqual({
+      valid: false,
+      reason: 'Transaction needs at least 3 confirmations.',
     });
   });
 });
