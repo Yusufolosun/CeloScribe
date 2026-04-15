@@ -1,25 +1,57 @@
-import { expect } from "chai";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { ethers } from "hardhat";
+const { expect } = require("chai");
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+const { ethers } = require("hardhat");
 
 const TASK_TYPE = {
   TEXT_SHORT: 0,
   TEXT_LONG: 1,
   IMAGE: 2,
   TRANSLATE: 3,
-} as const;
+};
 
 describe("CeloScribePayment", function () {
   async function deployFixture() {
     const [owner, user, treasury, other] = await ethers.getSigners();
 
-    const MockCUSD = await ethers.getContractFactory("MockCUSD");
-    const mockCusd = await MockCUSD.deploy();
+    const mockCusdFactory = await ethers.getContractFactory("MockCUSD");
+    const mockCusd = await mockCusdFactory.deploy();
     await mockCusd.waitForDeployment();
 
-    const Payment = await ethers.getContractFactory("CeloScribePayment");
-    const payment = await Payment.deploy(await mockCusd.getAddress(), treasury.address);
+    const mockCusdDeployment = mockCusd.deploymentTransaction();
+    if (!mockCusdDeployment) {
+      throw new Error("MockCUSD deployment did not return a deployment transaction.");
+    }
+
+    const mockCusdReceipt = await mockCusdDeployment.wait();
+    if (!mockCusdReceipt) {
+      throw new Error("MockCUSD deployment did not return a transaction receipt.");
+    }
+
+    if (!mockCusdReceipt.contractAddress) {
+      throw new Error("MockCUSD deployment did not return a contract address.");
+    }
+
+    const mockCusdAddress = mockCusdReceipt.contractAddress;
+
+    const paymentFactory = await ethers.getContractFactory("CeloScribePayment");
+    const payment = await paymentFactory.deploy(mockCusdAddress, treasury.address);
     await payment.waitForDeployment();
+
+    const paymentDeployment = payment.deploymentTransaction();
+    if (!paymentDeployment) {
+      throw new Error("CeloScribePayment deployment did not return a deployment transaction.");
+    }
+
+    const paymentReceipt = await paymentDeployment.wait();
+    if (!paymentReceipt) {
+      throw new Error("CeloScribePayment deployment did not return a transaction receipt.");
+    }
+
+    if (!paymentReceipt.contractAddress) {
+      throw new Error("CeloScribePayment deployment did not return a contract address.");
+    }
+
+    const paymentAddress = paymentReceipt.contractAddress;
 
     // Seed user with sufficient cUSD for all task payment tests.
     await mockCusd.mint(user.address, ethers.parseEther("10"));
@@ -31,14 +63,14 @@ describe("CeloScribePayment", function () {
       translate: await payment.PRICE_TRANSLATE(),
     };
 
-    return { owner, user, treasury, other, mockCusd, payment, prices };
+    return { owner, user, treasury, other, mockCusd, payment, paymentAddress, prices };
   }
 
   describe("payForTask", function () {
     it("reverts with InsufficientPayment if user has not approved enough cUSD", async function () {
-      const { user, payment, mockCusd, prices } = await deployFixture();
+      const { user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short - 1n);
+      await mockCusd.connect(user).approve(paymentAddress, prices.short - 1n);
 
       await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT)).to.be.revertedWithCustomError(
         payment,
@@ -47,9 +79,9 @@ describe("CeloScribePayment", function () {
     });
 
     it("reverts with InsufficientPayment if user balance is below the required amount", async function () {
-      const { user, other, payment, mockCusd, prices } = await deployFixture();
+      const { user, other, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short);
+      await mockCusd.connect(user).approve(paymentAddress, prices.short);
       await mockCusd.connect(user).transfer(other.address, ethers.parseEther("10"));
 
       await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT))
@@ -58,9 +90,9 @@ describe("CeloScribePayment", function () {
     });
 
     it("emits PaymentReceived with correct args on success", async function () {
-      const { user, payment, mockCusd, prices } = await deployFixture();
+      const { user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.long);
+      await mockCusd.connect(user).approve(paymentAddress, prices.long);
 
       await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_LONG))
         .to.emit(payment, "PaymentReceived")
@@ -68,18 +100,18 @@ describe("CeloScribePayment", function () {
     });
 
     it("increments totalPaymentsReceived correctly", async function () {
-      const { user, payment, mockCusd, prices } = await deployFixture();
+      const { user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.image);
+      await mockCusd.connect(user).approve(paymentAddress, prices.image);
       await payment.connect(user).payForTask(TASK_TYPE.IMAGE);
 
       expect(await payment.totalPaymentsReceived()).to.equal(prices.image);
     });
 
     it("reverts when paused", async function () {
-      const { owner, user, payment, mockCusd, prices } = await deployFixture();
+      const { owner, user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short);
+      await mockCusd.connect(user).approve(paymentAddress, prices.short);
       await payment.connect(owner).pause();
 
       await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT)).to.be.revertedWithCustomError(
@@ -89,11 +121,11 @@ describe("CeloScribePayment", function () {
     });
 
     it("works for all 4 task types with correct amounts", async function () {
-      const { user, payment, mockCusd, prices } = await deployFixture();
+      const { user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
       const expectedTotal = prices.short + prices.long + prices.image + prices.translate;
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), expectedTotal);
+      await mockCusd.connect(user).approve(paymentAddress, expectedTotal);
 
       await payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT);
       await payment.connect(user).payForTask(TASK_TYPE.TEXT_LONG);
@@ -117,9 +149,9 @@ describe("CeloScribePayment", function () {
 
   describe("withdrawToTreasury", function () {
     it("transfers full contract balance to treasury and emits TreasuryWithdrawal", async function () {
-      const { owner, user, treasury, payment, mockCusd, prices } = await deployFixture();
+      const { owner, user, treasury, payment, mockCusd, paymentAddress, prices } = await deployFixture();
 
-      await mockCusd.connect(user).approve(await payment.getAddress(), prices.image);
+      await mockCusd.connect(user).approve(paymentAddress, prices.image);
       await payment.connect(user).payForTask(TASK_TYPE.IMAGE);
 
       const before = await mockCusd.balanceOf(treasury.address);
@@ -130,7 +162,7 @@ describe("CeloScribePayment", function () {
 
       const after = await mockCusd.balanceOf(treasury.address);
       expect(after - before).to.equal(prices.image);
-      expect(await mockCusd.balanceOf(await payment.getAddress())).to.equal(0n);
+      expect(await mockCusd.balanceOf(paymentAddress)).to.equal(0n);
     });
 
     it("reverts with ZeroBalance if balance is 0", async function () {

@@ -1,9 +1,24 @@
-import { HardhatUserConfig } from 'hardhat/config';
-import '@nomicfoundation/hardhat-toolbox';
-import '@nomicfoundation/hardhat-verify';
-import * as dotenv from 'dotenv';
+const fs = require('fs');
+const path = require('path');
 
-dotenv.config({ path: '../../.env.local' });
+function registerTypeScriptSupport() {
+  const pnpmStoreDir = path.resolve(__dirname, '../../node_modules/.pnpm');
+  const tsNodeDir = fs
+    .readdirSync(pnpmStoreDir)
+    .find((entry) => entry.startsWith('ts-node@'));
+
+  if (!tsNodeDir) {
+    throw new Error('Unable to locate ts-node in the pnpm store.');
+  }
+
+  require(path.join(pnpmStoreDir, tsNodeDir, 'node_modules', 'ts-node', 'register', 'transpile-only'));
+}
+
+registerTypeScriptSupport();
+
+require('@nomicfoundation/hardhat-toolbox');
+require('@nomicfoundation/hardhat-verify');
+require('dotenv').config({ path: '../../.env.local' });
 
 const DEPLOYER_KEY = process.env.DEPLOYER_PRIVATE_KEY;
 const isCompileOrTestCommand = process.argv.includes('compile') || process.argv.includes('test');
@@ -14,7 +29,8 @@ if (!DEPLOYER_KEY && !isCompileOrTestCommand && process.env.NODE_ENV !== 'test')
   );
 }
 
-const config: HardhatUserConfig = {
+/** @type {import('hardhat/config').HardhatUserConfig} */
+const config = {
   solidity: {
     version: '0.8.24',
     settings: {
@@ -66,5 +82,4 @@ const config: HardhatUserConfig = {
   },
 };
 
-export default config;
-
+module.exports = config;
