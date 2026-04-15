@@ -127,6 +127,56 @@ describe('POST /api/task/generate', () => {
     expect(mockState.routeTaskMock).not.toHaveBeenCalled();
   });
 
+  it('trims prompts before routing and applying the task limit', async () => {
+    mockState.verifyPaymentMock.mockResolvedValue({ valid: true });
+    mockState.routeTaskMock.mockResolvedValue({
+      output: 'generated output',
+      processingMs: 10,
+      provider: 'deepseek-chat',
+      taskType: 'TEXT_SHORT',
+      tokensUsed: 11,
+    });
+
+    const request = new Request('http://localhost/api/task/generate', {
+      body: JSON.stringify({
+        prompt: `  ${'a'.repeat(500)}  `,
+        taskType: 'TEXT_SHORT',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+
+    expect(response.status).toBe(200);
+    expect(mockState.routeTaskMock).toHaveBeenCalledWith({
+      prompt: 'a'.repeat(500),
+      taskType: 'TEXT_SHORT',
+      targetLanguage: undefined,
+    });
+  });
+
+  it('rejects prompts that exceed the task limit before payment verification', async () => {
+    const request = new Request('http://localhost/api/task/generate', {
+      body: JSON.stringify({
+        prompt: 'a'.repeat(501),
+        taskType: 'TEXT_SHORT',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+    const payload = (await response.json()) as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(payload.error).toBe('Prompt too long. Max 500 characters for TEXT_SHORT.');
+    expect(mockState.verifyPaymentMock).not.toHaveBeenCalled();
+    expect(mockState.routeTaskMock).not.toHaveBeenCalled();
+  });
+
   it('returns too many requests after the wallet exceeds the window', async () => {
     mockState.verifyPaymentMock.mockResolvedValue({ valid: true });
     mockState.routeTaskMock.mockResolvedValue({
