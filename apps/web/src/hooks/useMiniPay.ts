@@ -18,7 +18,7 @@ export function useMiniPay() {
 
     if (!connector) return;
 
-    connect({ connector });
+    connect({ connector, chainId: celo.id });
   }
 
   return {

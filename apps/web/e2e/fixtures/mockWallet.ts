@@ -23,7 +23,6 @@ export async function installMockWallet(page: Page) {
 
       const ethereum = {
         isMiniPay: true,
-        isMetaMask: true,
         chainId: `0x${chainId.toString(16)}`,
         selectedAddress: address,
         async request({ method }: { method: string }) {

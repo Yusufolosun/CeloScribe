@@ -4,11 +4,25 @@ import { injected } from 'wagmi/connectors';
 
 import { celo } from '@/lib/chains';
 
+const miniPayTarget = () => {
+  if (typeof window === 'undefined' || window.ethereum?.isMiniPay !== true) {
+    return undefined;
+  }
+
+  return {
+    id: 'miniPay',
+    name: 'MiniPay',
+    provider(window: Window) {
+      return window.ethereum;
+    },
+  };
+};
+
 export const wagmiConfig = createConfig({
   chains: [celo],
   connectors: [
     injected({
-      target: 'metaMask',
+      target: miniPayTarget,
     }),
   ],
   transports: {
