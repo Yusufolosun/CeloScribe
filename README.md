@@ -30,7 +30,7 @@ pnpm install
 cp .env.example .env.local
 ```
 
-If you are not configuring environment variables yet, the copied file can remain empty until later prompts add runtime settings.
+If you are only working on the web app, the copied file can stay minimal for now. For contract deployment, add `DEPLOYER_PRIVATE_KEY`, `TREASURY_ADDRESS`, and `CELOSCAN_API_KEY` before running the deploy scripts.
 
 The web app now expects AI provider credentials for DeepSeek, Anthropic, and fal.ai in addition to the existing blockchain and Thirdweb values.
 

@@ -6,9 +6,9 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '../../.env.local' });
 
 const DEPLOYER_KEY = process.env.DEPLOYER_PRIVATE_KEY;
-const isCompileCommand = process.argv.includes('compile');
+const isCompileOrTestCommand = process.argv.includes('compile') || process.argv.includes('test');
 
-if (!DEPLOYER_KEY && !isCompileCommand && process.env.NODE_ENV !== 'test') {
+if (!DEPLOYER_KEY && !isCompileOrTestCommand && process.env.NODE_ENV !== 'test') {
   console.warn(
     'WARNING: DEPLOYER_PRIVATE_KEY not set. Deployment will fail. Set it in .env.local.'
   );
@@ -67,3 +67,4 @@ const config: HardhatUserConfig = {
 };
 
 export default config;
+

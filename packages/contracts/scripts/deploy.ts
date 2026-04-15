@@ -4,12 +4,46 @@ import { ethers, run, network } from 'hardhat';
 const CUSD_ADDRESSES: Record<string, string> = {
   celo: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
   alfajores: '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1',
-  hardhat: '', // Set dynamically in tests
+  hardhat: '',
 };
+
+function requireEnv(name: string, networkName: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} is required for ${networkName} deployments.`);
+  }
+
+  return value;
+}
+
+function resolveTreasuryAddress(networkName: string, deployerAddress: string): string {
+  if (networkName === 'hardhat') {
+    return deployerAddress;
+  }
+
+  const treasuryAddress = requireEnv('TREASURY_ADDRESS', networkName);
+
+  if (!ethers.isAddress(treasuryAddress)) {
+    throw new Error(`Invalid TREASURY_ADDRESS for ${networkName}: ${treasuryAddress}`);
+  }
+
+  if (treasuryAddress === ethers.ZeroAddress) {
+    throw new Error('TREASURY_ADDRESS cannot be the zero address.');
+  }
+
+  return ethers.getAddress(treasuryAddress);
+}
 
 async function main() {
   const networkName = network.name;
   console.log(`\n[Deploy] Network: ${networkName}`);
+
+  if (networkName === 'hardhat') {
+    throw new Error('Use pnpm deploy:testnet or pnpm deploy:mainnet. Hardhat deployments are not supported.');
+  }
+
+  requireEnv('DEPLOYER_PRIVATE_KEY', networkName);
+  requireEnv('CELOSCAN_API_KEY', networkName);
 
   const cusdAddress = CUSD_ADDRESSES[networkName];
   if (!cusdAddress) {
@@ -22,8 +56,11 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log(`[Deploy] Deployer CELO balance: ${ethers.formatEther(balance)} CELO`);
 
-  // Treasury = deployer address initially. Update after deployment via setTreasury().
-  const treasuryAddress = deployer.address;
+  if (balance === 0n) {
+    throw new Error('Deployer CELO balance is 0. Fund the deployer before deploying.');
+  }
+
+  const treasuryAddress = resolveTreasuryAddress(networkName, deployer.address);
 
   console.log(`[Deploy] Deploying CeloScribePayment...`);
   console.log(`         cUSD: ${cusdAddress}`);

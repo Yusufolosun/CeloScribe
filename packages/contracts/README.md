@@ -15,12 +15,12 @@ The financial core of CeloScribe — receives cUSD micropayments per AI task, va
 
 ### Task Types & Pricing
 
-| Task Type    | Price (cUSD) | Description           |
-| ------------ | ------------ | --------------------- |
-| TEXT_SHORT    | $0.01        | Up to 300 words       |
-| TEXT_LONG     | $0.05        | Up to 1,500 words     |
-| IMAGE         | $0.08        | Image generation      |
-| TRANSLATE     | $0.02        | Language translation  |
+| Task Type  | Price (cUSD) | Description          |
+| ---------- | ------------ | -------------------- |
+| TEXT_SHORT | $0.01        | Up to 300 words      |
+| TEXT_LONG  | $0.05        | Up to 1,500 words    |
+| IMAGE      | $0.08        | Image generation     |
+| TRANSLATE  | $0.02        | Language translation |
 
 ### Development
 
@@ -34,6 +34,10 @@ pnpm test
 # Compile contracts
 npx hardhat compile
 ```
+
+## Deployment
+
+For `pnpm deploy:testnet` and `pnpm deploy:mainnet`, set `DEPLOYER_PRIVATE_KEY`, `TREASURY_ADDRESS`, and `CELOSCAN_API_KEY` in the repo root `.env.local` before running the script. The deploy flow now requires an explicit treasury address so mainnet revenue routing is not left to a manual post-deploy step.
 
 ### Security
 

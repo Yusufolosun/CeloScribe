@@ -81,7 +81,7 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
      * @notice Pay for an AI task. User must have approved this contract to spend cUSD.
      * @param taskType The type of AI task being requested.
      * @dev Follows Checks-Effects-Interactions:
-     *      1. Check: validate approval against task price
+     *      1. Check: validate balance and approval against task price
      *      2. Effect: update state (totalPaymentsReceived, emit event)
      *      3. Interact: transfer cUSD from user to this contract
      */
@@ -89,6 +89,9 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         uint256 requiredAmount = priceOf(taskType);
 
         // CHECKS
+        uint256 userBalance = cusd.balanceOf(msg.sender);
+        if (userBalance < requiredAmount) revert InsufficientPayment(requiredAmount, userBalance);
+
         uint256 approvedAmount = cusd.allowance(msg.sender, address(this));
         if (approvedAmount < requiredAmount) revert InsufficientPayment(requiredAmount, approvedAmount);
 

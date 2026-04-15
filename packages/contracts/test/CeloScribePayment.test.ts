@@ -46,6 +46,17 @@ describe("CeloScribePayment", function () {
       );
     });
 
+    it("reverts with InsufficientPayment if user balance is below the required amount", async function () {
+      const { user, other, payment, mockCusd, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(await payment.getAddress(), prices.short);
+      await mockCusd.connect(user).transfer(other.address, ethers.parseEther("10"));
+
+      await expect(payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT))
+        .to.be.revertedWithCustomError(payment, "InsufficientPayment")
+        .withArgs(prices.short, 0n);
+    });
+
     it("emits PaymentReceived with correct args on success", async function () {
       const { user, payment, mockCusd, prices } = await deployFixture();
 
