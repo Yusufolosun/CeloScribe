@@ -97,6 +97,16 @@ export const CELOSCRIBE_PAYMENT_ABI = [
     type: 'error',
   },
   {
+    inputs: [],
+    name: 'RenounceOwnershipDisabled',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidToken',
+    type: 'error',
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -414,16 +424,53 @@ export const CELOSCRIBE_PAYMENT_ABI = [
   },
   {
     inputs: [],
-    name: 'unpause',
+    name: 'withdrawToTreasury',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'withdrawToTreasury',
+    name: 'contractBalance',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'rescueToken',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'version',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'pure',
     type: 'function',
   },
 ] as const;
