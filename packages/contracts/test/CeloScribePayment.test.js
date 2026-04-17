@@ -283,4 +283,20 @@ describe("CeloScribePayment", function () {
       );
     });
   });
+
+  describe("Views (contractBalance, version)", function () {
+    it("contractBalance returns correct amount", async function () {
+      const { user, payment, mockCusd, paymentAddress, prices } = await deployFixture();
+
+      await mockCusd.connect(user).approve(paymentAddress, prices.short);
+      await payment.connect(user).payForTask(TASK_TYPE.TEXT_SHORT);
+
+      expect(await payment.contractBalance()).to.equal(prices.short);
+    });
+
+    it("version returns '1'", async function () {
+      const { payment } = await deployFixture();
+      expect(await payment.version()).to.equal("1");
+    });
+  });
 });
