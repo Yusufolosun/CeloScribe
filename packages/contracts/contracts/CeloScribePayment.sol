@@ -114,8 +114,7 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         if (taskType == TaskType.TEXT_SHORT) return PRICE_TEXT_SHORT;
         if (taskType == TaskType.TEXT_LONG) return PRICE_TEXT_LONG;
         if (taskType == TaskType.IMAGE) return PRICE_IMAGE;
-        if (taskType == TaskType.TRANSLATE) return PRICE_TRANSLATE;
-        revert InvalidTaskType();
+        return PRICE_TRANSLATE;
     }
 
     /**
