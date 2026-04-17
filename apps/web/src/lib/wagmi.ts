@@ -18,6 +18,8 @@ const miniPayTarget = () => {
   };
 };
 
+const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || 'https://forno.celo.org';
+
 export const wagmiConfig = createConfig({
   chains: [celo],
   connectors: [
@@ -26,6 +28,6 @@ export const wagmiConfig = createConfig({
     }),
   ],
   transports: {
-    [celo.id]: http('https://forno.celo.org'),
+    [celo.id]: http(celoRpcUrl),
   },
 });
