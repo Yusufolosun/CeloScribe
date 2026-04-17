@@ -175,4 +175,11 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         if (token == address(cusd)) revert InvalidToken();
         IERC20(token).safeTransfer(owner(), amount);
     }
+
+    /**
+     * @notice Convenience view returning the contract's current cUSD balance.
+     */
+    function contractBalance() external view returns (uint256) {
+        return cusd.balanceOf(address(this));
+    }
 }
