@@ -106,7 +106,23 @@ async function main() {
   console.log(`[Deploy] Contract deployed at: ${deployedAddress}`);
   console.log(`[Deploy] Tx hash: ${deployTx?.hash ?? 'unknown'}`);
 
-  // Wait for 5 confirmations before verifying
+  const chainId = network.config.chainId;
+  if (chainId === undefined) {
+    throw new Error(`[Deploy] ❌ Chain ID is undefined for network: ${networkName}`);
+  }
+
+  // ── Post-Deploy Verification (Smoke Test) ──────────────────────────────────
+  console.log('\n[Deploy] Running post-deploy sanity checks...');
+
+  const ownerAddress = await contract.owner();
+  if (ownerAddress.toLowerCase() !== deployer.address.toLowerCase()) {
+    throw new Error(
+      `[Deploy] ❌ Ownership verification failed: expected ${deployer.address}, got ${ownerAddress}`
+    );
+  }
+  console.log('[Deploy] ✅ Ownership verified.');
+
+  // Wait for confirmations before verifying on Celoscan
   if (networkName !== 'hardhat') {
     console.log(`[Deploy] Waiting for 5 confirmations...`);
     await deployTx?.wait(5);
