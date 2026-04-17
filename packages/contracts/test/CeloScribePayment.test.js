@@ -225,10 +225,59 @@ describe("CeloScribePayment", function () {
       expect(await payment.paused()).to.equal(false);
     });
 
-    it("non-owner cannot pause", async function () {
+    it("non-owner cannot unpause", async function () {
       const { user, payment } = await deployFixture();
 
-      await expect(payment.connect(user).pause()).to.be.revertedWithCustomError(
+      await expect(payment.connect(user).unpause()).to.be.revertedWithCustomError(
+        payment,
+        "OwnableUnauthorizedAccount"
+      );
+    });
+  });
+
+  describe("renounceOwnership", function () {
+    it("reverts with RenounceOwnershipDisabled", async function () {
+      const { owner, payment } = await deployFixture();
+
+      await expect(payment.connect(owner).renounceOwnership()).to.be.revertedWithCustomError(
+        payment,
+        "RenounceOwnershipDisabled"
+      );
+    });
+  });
+
+  describe("rescueToken", function () {
+    it("owner can rescue non-cUSD tokens", async function () {
+      const { owner, payment, paymentAddress } = await deployFixture();
+
+      // Deploy another mock token
+      const dummyTokenFactory = await ethers.getContractFactory("MockCUSD");
+      const dummyToken = await dummyTokenFactory.deploy();
+      await dummyToken.waitForDeployment();
+      const dummyAddress = await dummyToken.getAddress();
+
+      await dummyToken.mint(paymentAddress, ethers.parseEther("100"));
+      expect(await dummyToken.balanceOf(paymentAddress)).to.equal(ethers.parseEther("100"));
+
+      await payment.connect(owner).rescueToken(dummyAddress, ethers.parseEther("100"));
+      expect(await dummyToken.balanceOf(owner.address)).to.equal(ethers.parseEther("100"));
+      expect(await dummyToken.balanceOf(paymentAddress)).to.equal(0n);
+    });
+
+    it("reverts with InvalidToken if trying to rescue cUSD", async function () {
+      const { owner, payment, mockCusd } = await deployFixture();
+      const mockCusdAddress = await mockCusd.getAddress();
+
+      await expect(payment.connect(owner).rescueToken(mockCusdAddress, 100n)).to.be.revertedWithCustomError(
+        payment,
+        "InvalidToken"
+      );
+    });
+
+    it("reverts if called by non-owner", async function () {
+      const { user, other, payment } = await deployFixture();
+
+      await expect(payment.connect(user).rescueToken(other.address, 100n)).to.be.revertedWithCustomError(
         payment,
         "OwnableUnauthorizedAccount"
       );
