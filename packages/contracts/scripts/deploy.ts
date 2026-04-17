@@ -122,6 +122,11 @@ async function main() {
   }
   console.log('[Deploy] ✅ Ownership verified.');
 
+  const contractBalance = await contract.contractBalance();
+  console.log(
+    `[Deploy] ✅ Contract Balance verified: ${contractBalance.toString()} (cUSD balance view works)`
+  );
+
   // Wait for confirmations before verifying on Celoscan
   if (networkName !== 'hardhat') {
     console.log(`[Deploy] Waiting for 5 confirmations...`);
