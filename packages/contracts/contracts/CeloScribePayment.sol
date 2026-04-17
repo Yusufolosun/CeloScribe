@@ -61,6 +61,8 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     error ZeroAddress();
     error ZeroBalance();
     error InvalidTaskType();
+    /// @notice Thrown when renounceOwnership() is called. Permanently disabled.
+    error RenounceOwnershipDisabled();
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
@@ -150,5 +152,14 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
      */
     function unpause() external onlyOwner {
         _unpause();
+    }
+
+    /**
+     * @notice Disabled: renouncing ownership would permanently lock
+     *         withdrawToTreasury, setTreasury, pause, and unpause.
+     *         This override is intentional and cannot be removed after deployment.
+     */
+    function renounceOwnership() public override {
+        revert RenounceOwnershipDisabled();
     }
 }
