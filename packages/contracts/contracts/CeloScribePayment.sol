@@ -125,11 +125,11 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         uint256 balance = cusd.balanceOf(address(this));
         if (balance == 0) revert ZeroBalance();
 
-        // EFFECTS
-        emit TreasuryWithdrawal(treasury, balance);
-
         // INTERACTIONS
         cusd.safeTransfer(treasury, balance);
+
+        // EFFECTS
+        emit TreasuryWithdrawal(treasury, balance);
     }
 
     /**
