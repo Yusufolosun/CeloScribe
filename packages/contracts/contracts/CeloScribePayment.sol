@@ -57,9 +57,13 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
 
     // ─── Errors ──────────────────────────────────────────────────────────────
 
+    /// @notice Thrown when the provided cUSD amount is less than the required task price.
     error InsufficientPayment(uint256 required, uint256 provided);
+    /// @notice Thrown when a zero address is provided where a valid address is expected.
     error ZeroAddress();
+    /// @notice Thrown when an operation is attempted on an account with zero balance.
     error ZeroBalance();
+    /// @notice Thrown when an invalid TaskType is provided.
     error InvalidTaskType();
     /// @notice Thrown when renounceOwnership() is called. Permanently disabled.
     error RenounceOwnershipDisabled();
