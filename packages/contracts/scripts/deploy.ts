@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import { ethers, run, network } from 'hardhat';
 
 // cUSD addresses by network
@@ -32,6 +35,29 @@ function resolveTreasuryAddress(networkName: string, deployerAddress: string): s
   }
 
   return ethers.getAddress(treasuryAddress);
+}
+
+// ── Save deployment artifact ──────────────────────────────────────────────────
+
+interface DeploymentArtifact {
+  network: string;
+  chainId: number;
+  contractAddress: string;
+  cusdAddress: string;
+  treasuryAddress: string;
+  deployerAddress: string;
+  txHash: string;
+  blockNumber: number;
+  deployedAt: string; // ISO 8601
+}
+
+async function saveDeploymentArtifact(artifact: DeploymentArtifact): Promise<void> {
+  const deploymentsDir = path.resolve(__dirname, '..', 'deployments');
+  fs.mkdirSync(deploymentsDir, { recursive: true });
+
+  const filename = path.join(deploymentsDir, `${artifact.network}.json`);
+  fs.writeFileSync(filename, JSON.stringify(artifact, null, 2) + '\n');
+  console.log(`[Deploy] 📄 Deployment artifact saved to: ${filename}`);
 }
 
 async function main() {
