@@ -63,6 +63,8 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     error InvalidTaskType();
     /// @notice Thrown when renounceOwnership() is called. Permanently disabled.
     error RenounceOwnershipDisabled();
+    /// @notice Thrown when attempting to rescue the primary payment token.
+    error InvalidToken();
 
     // ─── Constructor ─────────────────────────────────────────────────────────
 
