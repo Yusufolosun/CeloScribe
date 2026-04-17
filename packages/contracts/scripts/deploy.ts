@@ -52,6 +52,10 @@ interface DeploymentArtifact {
 }
 
 async function saveDeploymentArtifact(artifact: DeploymentArtifact): Promise<void> {
+  if (!artifact.chainId) {
+    throw new Error('[Deploy] ❌  Refusing to save artifact with missing chainId.');
+  }
+
   const deploymentsDir = path.resolve(__dirname, '..', 'deployments');
   fs.mkdirSync(deploymentsDir, { recursive: true });
 
