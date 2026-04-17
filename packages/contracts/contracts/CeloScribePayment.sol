@@ -164,4 +164,15 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
     function renounceOwnership() public override {
         revert RenounceOwnershipDisabled();
     }
+
+    /**
+     * @notice Emergency function to recover any ERC-20 tokens sent to this contract by mistake.
+     *         Cannot be used to withdraw the primary cUSD balance.
+     * @param token Address of the ERC-20 token to rescue.
+     * @param amount Amount to rescue.
+     */
+    function rescueToken(address token, uint256 amount) external onlyOwner {
+        if (token == address(cusd)) revert InvalidToken();
+        IERC20(token).safeTransfer(owner(), amount);
+    }
 }
