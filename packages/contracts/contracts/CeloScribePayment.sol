@@ -99,12 +99,12 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
         uint256 approvedAmount = cusd.allowance(msg.sender, address(this));
         if (approvedAmount < requiredAmount) revert InsufficientPayment(requiredAmount, approvedAmount);
 
+        // INTERACTIONS
+        cusd.safeTransferFrom(msg.sender, address(this), requiredAmount);
+
         // EFFECTS
         totalPaymentsReceived += requiredAmount;
         emit PaymentReceived(msg.sender, taskType, requiredAmount, block.timestamp);
-
-        // INTERACTIONS
-        cusd.safeTransferFrom(msg.sender, address(this), requiredAmount);
     }
 
     /**
@@ -181,5 +181,12 @@ contract CeloScribePayment is ReentrancyGuard, Ownable, Pausable {
      */
     function contractBalance() external view returns (uint256) {
         return cusd.balanceOf(address(this));
+    }
+
+    /**
+     * @notice Returns the logic version of this contract.
+     */
+    function version() external pure returns (string memory) {
+        return "1";
     }
 }
