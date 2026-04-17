@@ -4,18 +4,20 @@ import { injected } from 'wagmi/connectors';
 
 import { celo } from '@/lib/chains';
 
+const MINI_PAY_TARGET = {
+  id: 'miniPay',
+  name: 'MiniPay',
+  provider(window?: Window) {
+    return window?.ethereum;
+  },
+};
+
 const miniPayTarget = () => {
   if (typeof window === 'undefined' || window.ethereum?.isMiniPay !== true) {
     return undefined;
   }
 
-  return {
-    id: 'miniPay',
-    name: 'MiniPay',
-    provider(window: Window) {
-      return window.ethereum;
-    },
-  };
+  return MINI_PAY_TARGET;
 };
 
 const celoRpcUrl = process.env.NEXT_PUBLIC_CELO_RPC_URL || 'https://forno.celo.org';
