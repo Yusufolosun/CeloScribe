@@ -67,11 +67,8 @@ const config = {
   },
 
   etherscan: {
-    apiKey: {
-      // Both networks use the same Celoscan API key.
-      alfajores: process.env.CELOSCAN_API_KEY ?? '',
-      celo: process.env.CELOSCAN_API_KEY ?? '',
-    },
+    // Etherscan V2: single API key string (not per-network object).
+    apiKey: process.env.CELOSCAN_API_KEY ?? '',
     customChains: [
       {
         network: 'alfajores',
