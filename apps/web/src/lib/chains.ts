@@ -35,4 +35,5 @@ export const alfajores = defineChain({
   testnet: true,
 });
 
-export const CUSD_ADDRESS = '0x765DE816845861e75A25fCA122bb6898B8B1282a' as const;
+export const CUSD_MAINNET_ADDRESS = '0x765DE816845861e75A25fCA122bb6898B8B1282a' as const;
+export const CUSD_ADDRESS = CUSD_MAINNET_ADDRESS;
