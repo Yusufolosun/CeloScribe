@@ -320,6 +320,13 @@ export const CELOSCRIBE_PAYMENT_ABI = [
   },
   {
     inputs: [],
+    name: 'unpause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'paused',
     outputs: [
       {
