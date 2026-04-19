@@ -71,11 +71,13 @@ export async function generateWithDeepSeek(request: TaskRequest): Promise<TaskRe
       processingMs: Date.now() - start,
     });
 
+    const tokensUsed = response.usage?.total_tokens;
+
     return {
       taskType: request.taskType,
       output,
       provider: 'deepseek-chat',
-      tokensUsed: response.usage?.total_tokens,
+      ...(tokensUsed !== undefined ? { tokensUsed } : {}),
       processingMs: Date.now() - start,
     };
   } catch (error) {

@@ -27,7 +27,7 @@ export function WalletPanel() {
           description="The provider stack is ready for Wagmi, Viem, React Query, and Thirdweb. This panel shows MiniPay detection, chain readiness, and live CELO and cUSD balances before any payment flow."
         />
 
-        <WalletSummary address={address} />
+        <WalletSummary {...(address ? { address } : {})} />
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
