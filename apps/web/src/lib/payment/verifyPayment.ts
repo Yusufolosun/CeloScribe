@@ -26,7 +26,7 @@ const client = createPublicClient({
 });
 
 const CONTRACT_ADDRESS = env.CONTRACT_ADDRESS as Address;
-const MIN_CONFIRMATIONS = env.NODE_ENV === 'production' ? 3 : 1;
+const MIN_CONFIRMATIONS = env.PAYMENT_MIN_CONFIRMATIONS ?? (env.NODE_ENV === 'production' ? 3 : 1);
 
 export async function verifyPayment(
   txHash: Hash,
@@ -41,7 +41,10 @@ export async function verifyPayment(
     return { valid: false, reason: 'Transaction reverted or failed.' };
   }
 
-  if ((receipt.confirmations ?? 0) < MIN_CONFIRMATIONS) {
+  const latestBlock = await client.getBlockNumber();
+  const confirmations = Number(latestBlock - receipt.blockNumber + BigInt(1));
+
+  if (confirmations < MIN_CONFIRMATIONS) {
     logger.warn({ msg: 'Payment verification failed', txHash, reason: 'unconfirmed receipt' });
     return {
       valid: false,
