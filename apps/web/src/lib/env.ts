@@ -6,6 +6,7 @@
  * NEVER import this file in client-side code.
  * NEVER expose DEEPSEEK_API_KEY, ANTHROPIC_API_KEY, or FAL_API_KEY to the browser.
  */
+import { type Address, getAddress, isAddress } from 'viem';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -18,8 +19,34 @@ function requireEnv(name: string): string {
   return value;
 }
 
+function requireAddressEnv(name: string): Address {
+  const value = requireEnv(name);
+
+  if (!isAddress(value)) {
+    throw new Error(`[env] Invalid address environment variable: ${name}. Received: ${value}`);
+  }
+
+  return getAddress(value);
+}
+
 function optionalEnv(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
+}
+
+function optionalNumberEnv(name: string): number | undefined {
+  const value = process.env[name];
+
+  if (!value || value.trim() === '') {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed <= 0) {
+    throw new Error(`[env] Invalid numeric environment variable: ${name}. Received: ${value}`);
+  }
+
+  return parsed;
 }
 
 export const env = {
@@ -30,7 +57,8 @@ export const env = {
 
   // Blockchain
   CELO_RPC_URL: optionalEnv('NEXT_PUBLIC_CELO_RPC_URL', 'https://forno.celo.org'),
-  CONTRACT_ADDRESS: requireEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'),
+  CONTRACT_ADDRESS: requireAddressEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'),
+  PAYMENT_MIN_CONFIRMATIONS: optionalNumberEnv('PAYMENT_MIN_CONFIRMATIONS'),
 
   // Thirdweb
   THIRDWEB_SECRET_KEY: requireEnv('THIRDWEB_SECRET_KEY'),
