@@ -32,7 +32,44 @@ cp .env.example .env.local
 
 If you are only working on the web app, the copied file can stay minimal for now. For contract deployment, add `DEPLOYER_PRIVATE_KEY`, `TREASURY_ADDRESS`, and `CELOSCAN_API_KEY` before running the deploy scripts.
 
-The web app now expects AI provider credentials for DeepSeek, Anthropic, and fal.ai in addition to the existing blockchain and Thirdweb values.
+The web app also expects AI provider credentials for DeepSeek, Anthropic, and fal.ai, plus the blockchain and Thirdweb values used by the MiniApp shell.
+
+## Mainnet Deployment Checklist
+
+Before deploying to Celo mainnet, make sure you have all of the following ready:
+
+1. A funded deployer wallet with the private key exported as `DEPLOYER_PRIVATE_KEY`.
+2. A treasury wallet address exported as `TREASURY_ADDRESS`. This is where cUSD revenue will ultimately be withdrawn.
+3. A Celoscan API key exported as `CELOSCAN_API_KEY` for contract verification.
+4. A production RPC URL exported as `NEXT_PUBLIC_CELO_RPC_URL`.
+5. The deployed contract address exported as `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS` after deployment.
+6. A Thirdweb secret key and client ID exported as `THIRDWEB_SECRET_KEY` and `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`.
+7. AI provider credentials exported as `DEEPSEEK_API_KEY`, `ANTHROPIC_API_KEY`, and `FAL_API_KEY`.
+8. A local `.env.local` file that is not committed.
+
+Recommended validation steps before mainnet:
+
+```bash
+pnpm --dir packages/contracts test
+pnpm --dir packages/contracts compile
+pnpm --dir apps/web test
+pnpm --dir apps/web lint
+pnpm --dir apps/web build
+```
+
+## Deploying To Mainnet
+
+1. Populate `.env.local` with the values above.
+2. Run the contract deployment script:
+
+```bash
+pnpm --dir packages/contracts deploy:mainnet
+```
+
+3. Copy the printed contract address into `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS`.
+4. Re-run `pnpm --dir apps/web build` so the frontend bakes in the deployed address.
+5. Deploy the web app to your host of choice after the build succeeds.
+6. Send a small end-to-end test payment from MiniPay on Celo mainnet and confirm the `/api/task/generate` flow succeeds.
 
 ## Development Commands
 

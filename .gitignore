@@ -1,9 +1,13 @@
-# === ENVIRONMENT & SECRETS (NEVER COMMIT) ===
+# ═══════════════════════════════════════════════════════════════════
+# SECRETS & ENVIRONMENT — NEVER COMMIT THESE
+# ═══════════════════════════════════════════════════════════════════
 .env
 .env.local
 .env.*.local
 .env.production
 .env.staging
+.env.development.local
+.env.test.local
 *.env
 secrets/
 *.key
@@ -13,26 +17,39 @@ secrets/
 mnemonic.txt
 seed.txt
 wallet.json
+keystore/
 
-# === HARDHAT / BLOCKCHAIN ===
+# ═══════════════════════════════════════════════════════════════════
+# HARDHAT / BLOCKCHAIN
+# ═══════════════════════════════════════════════════════════════════
 packages/contracts/cache/
 packages/contracts/artifacts/
-packages/contracts/deployments/
 packages/contracts/typechain-types/
 packages/contracts/.openzeppelin/
 
-# === NEXT.JS ===
+# Deployment artifacts contain block numbers & addresses but NOT secrets.
+# Commit these so the frontend can reference the deployed address.
+# Un-comment the line below ONLY if you want to ignore them:
+# packages/contracts/deployments/
+
+# ═══════════════════════════════════════════════════════════════════
+# NEXT.JS
+# ═══════════════════════════════════════════════════════════════════
 apps/web/.next/
 apps/web/out/
 apps/web/.vercel/
 
-# === NODE ===
+# ═══════════════════════════════════════════════════════════════════
+# NODE / PNPM
+# ═══════════════════════════════════════════════════════════════════
 node_modules/
 .pnpm-store/
 dist/
 build/
 
-# === EDITORS ===
+# ═══════════════════════════════════════════════════════════════════
+# EDITORS
+# ═══════════════════════════════════════════════════════════════════
 .vscode/settings.json
 .idea/
 *.swp
@@ -40,15 +57,21 @@ build/
 .DS_Store
 Thumbs.db
 
-# === LOGS ===
+# ═══════════════════════════════════════════════════════════════════
+# LOGS
+# ═══════════════════════════════════════════════════════════════════
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# === TESTING ===
+# ═══════════════════════════════════════════════════════════════════
+# TESTING
+# ═══════════════════════════════════════════════════════════════════
 coverage/
 .nyc_output/
 
-# === TURBO ===
+# ═══════════════════════════════════════════════════════════════════
+# TURBO
+# ═══════════════════════════════════════════════════════════════════
 .turbo/
