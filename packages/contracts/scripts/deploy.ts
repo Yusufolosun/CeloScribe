@@ -127,6 +127,22 @@ async function main() {
     `[Deploy] ✅ Contract Balance verified: ${contractBalance.toString()} (cUSD balance view works)`
   );
 
+  const logicVersion = await contract.version();
+  console.log(`[Deploy] ✅ Logic Version: ${logicVersion}`);
+
+  // ── Save Deployment Artifact ───────────────────────────────────────────────
+  await saveDeploymentArtifact({
+    network: networkName,
+    chainId,
+    contractAddress: deployedAddress,
+    cusdAddress,
+    treasuryAddress,
+    deployerAddress: deployer.address,
+    txHash: deployTx?.hash ?? 'unknown',
+    blockNumber: deployTx ? Number((await deployTx.wait(1))?.blockNumber ?? 0) : 0,
+    deployedAt: new Date().toISOString(),
+  });
+
   // Wait for confirmations before verifying on Celoscan
   if (networkName !== 'hardhat') {
     console.log(`[Deploy] Waiting for 5 confirmations...`);
