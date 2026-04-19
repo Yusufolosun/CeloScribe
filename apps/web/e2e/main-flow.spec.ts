@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
 import { MOCK_ADDRESS, installMockWallet } from './fixtures/mockWallet';
 
@@ -9,7 +9,7 @@ const mockTaskResult = {
   processingMs: 42,
 };
 
-async function mockFornoRpc(page: Parameters<typeof test.extend>[0]['page']) {
+async function mockFornoRpc(page: Page) {
   let transactionCounter = 0;
 
   await page.route('**://forno.celo.org/**', async (route) => {
@@ -80,7 +80,7 @@ async function mockFornoRpc(page: Parameters<typeof test.extend>[0]['page']) {
   });
 }
 
-async function mockTaskGeneration(page: Parameters<typeof test.extend>[0]['page']) {
+async function mockTaskGeneration(page: Page) {
   await page.route('**/api/task/generate', async (route) => {
     await route.fulfill({
       contentType: 'application/json',
