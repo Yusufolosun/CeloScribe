@@ -9,13 +9,11 @@ import type { TaskType } from '@/lib/ai/taskTypes';
 import { celo } from '@/lib/chains';
 import { CELOSCRIBE_PAYMENT_ABI } from '@/lib/contracts/CeloScribePayment.abi';
 import { TASK_PRICES } from '@/lib/payment/taskPrices';
-import { requirePublicEnv } from '@/lib/publicEnv';
+import { requirePublicAddressEnv } from '@/lib/publicEnv';
 
 import { useCusdApproval } from './useCusdApproval';
 
-const CONTRACT_ADDRESS = requirePublicEnv(
-  'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
-) as `0x${string}`;
+const CONTRACT_ADDRESS = requirePublicAddressEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS');
 
 const TASK_TYPE_INDEX: Record<TaskType, number> = {
   TEXT_SHORT: 0,

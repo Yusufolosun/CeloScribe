@@ -6,7 +6,7 @@ import { type Address, createPublicClient, formatEther, http, parseAbiItem } fro
 
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { celo } from '@/lib/chains';
-import { optionalPublicEnv, requirePublicEnv } from '@/lib/publicEnv';
+import { optionalPublicEnv, requirePublicAddressEnv } from '@/lib/publicEnv';
 
 const TASK_NAMES: Record<number, TaskType> = {
   0: 'TEXT_SHORT',
@@ -23,7 +23,9 @@ export interface HistoryEntry {
   timestamp?: number;
 }
 
-const CONTRACT_ADDRESS = requirePublicEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS') as Address;
+const CONTRACT_ADDRESS = requirePublicAddressEnv(
+  'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
+) as Address;
 
 const paymentEvent = parseAbiItem(
   'event PaymentReceived(address indexed user, uint8 indexed taskType, uint256 amount, uint256 timestamp)'
