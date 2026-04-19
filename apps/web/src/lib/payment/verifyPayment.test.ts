@@ -6,6 +6,7 @@ import { TaskType, verifyPayment } from './verifyPayment';
 const mockState = vi.hoisted(() => {
   const state = {
     createPublicClientMock: vi.fn(),
+    getBlockNumberMock: vi.fn(),
     getLogsMock: vi.fn(),
     getTransactionReceiptMock: vi.fn(),
     loggerDebugMock: vi.fn(),
@@ -15,6 +16,7 @@ const mockState = vi.hoisted(() => {
   };
 
   state.createPublicClientMock.mockImplementation(() => ({
+    getBlockNumber: state.getBlockNumberMock,
     getLogs: state.getLogsMock,
     getTransactionReceipt: state.getTransactionReceiptMock,
   }));
@@ -60,6 +62,7 @@ export const TEST_TX_HASH =
 
 export function resetVerifyPaymentMocks() {
   mockState.createPublicClientMock.mockClear();
+  mockState.getBlockNumberMock.mockReset();
   mockState.getLogsMock.mockReset();
   mockState.getTransactionReceiptMock.mockReset();
   mockState.loggerDebugMock.mockReset();
@@ -71,6 +74,7 @@ export function resetVerifyPaymentMocks() {
 describe('verifyPayment', () => {
   beforeEach(() => {
     resetVerifyPaymentMocks();
+    mockState.getBlockNumberMock.mockResolvedValue(3n);
   });
 
   it('returns invalid for a reverted receipt', async () => {
@@ -148,9 +152,9 @@ describe('verifyPayment', () => {
   });
 
   it('returns invalid when the receipt has not reached the production confirmation threshold', async () => {
+    mockState.getBlockNumberMock.mockResolvedValue(2n);
     mockState.getTransactionReceiptMock.mockResolvedValue({
       blockNumber: 1n,
-      confirmations: 2,
       status: 'success',
       to: CONTRACT_ADDRESS,
     });
