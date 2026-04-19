@@ -7,8 +7,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node", "mocha"],
     "resolveJsonModule": true
   },
-  "include": ["./scripts/**/*.ts"]
+  "include": ["./scripts/**/*.ts", "./hardhat-env.d.ts"]
 }
