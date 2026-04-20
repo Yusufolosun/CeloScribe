@@ -5,6 +5,7 @@ import { TASK_PRICE_DISPLAY } from '@/lib/payment/taskPrices';
 
 interface PaymentModalProps {
   taskType: TaskType;
+  targetLanguage?: string;
   paymentState: 'idle' | 'approving' | 'paying' | 'confirming' | 'done' | 'error';
   error: string | null;
   onConfirm: () => void;
@@ -22,6 +23,7 @@ const STATE_MESSAGES: Record<PaymentModalProps['paymentState'], string> = {
 
 export function PaymentModal({
   taskType,
+  targetLanguage,
   paymentState,
   error,
   onConfirm,
@@ -42,6 +44,9 @@ export function PaymentModal({
         <p className="modal__amount">
           {price} <span className="modal__currency">cUSD</span>
         </p>
+        {targetLanguage?.trim() && (
+          <p className="modal__detail">Target language: {targetLanguage.trim()}</p>
+        )}
         <p className="modal__status">{STATE_MESSAGES[paymentState]}</p>
         {error && (
           <p className="modal__error" role="alert">

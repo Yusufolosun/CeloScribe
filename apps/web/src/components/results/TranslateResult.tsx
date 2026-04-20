@@ -51,7 +51,10 @@ export function TranslateResult({ output, originalPrompt, targetLanguage }: Tran
 
   const sourceText = originalPrompt?.trim() ?? '';
   const translatedText = output?.trim() ?? '';
-  const languageLabel = targetLanguage?.trim() || 'Target language unavailable';
+  const languageLabel = targetLanguage?.trim();
+  const languageSummary = languageLabel
+    ? `Target language: ${languageLabel}`
+    : 'Target language unavailable';
 
   useEffect(() => {
     if (sourceCopyState !== 'copied') {
@@ -103,7 +106,7 @@ export function TranslateResult({ output, originalPrompt, targetLanguage }: Tran
       <div className="result-card__header result-card__header--stacked">
         <div>
           <p className="result-card__eyebrow">Translation output</p>
-          <p className="result-card__meta">{languageLabel}</p>
+          <p className="result-card__meta">{languageSummary}</p>
         </div>
       </div>
 

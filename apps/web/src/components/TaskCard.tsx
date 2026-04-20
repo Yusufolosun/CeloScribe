@@ -30,7 +30,7 @@ const TASK_META: Record<
   TRANSLATE: {
     icon: '🌍',
     name: 'Translate',
-    description: 'Translate to Yoruba, Hausa, Igbo, French, and more',
+    description: 'Translate into a chosen target language',
     maxLen: '1500 chars',
   },
 };

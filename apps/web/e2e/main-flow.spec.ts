@@ -89,6 +89,29 @@ async function mockTaskGeneration(page: Page) {
   });
 }
 
+async function mockTranslateGeneration(page: Page) {
+  await page.route('**/api/task/generate', async (route) => {
+    const payload = route.request().postDataJSON() as {
+      prompt?: string;
+      taskType?: string;
+      targetLanguage?: string;
+    };
+
+    expect(payload.taskType).toBe('TRANSLATE');
+    expect(payload.targetLanguage).toBe('Yoruba');
+
+    await route.fulfill({
+      contentType: 'application/json',
+      json: {
+        taskType: 'TRANSLATE' as const,
+        output: 'A translated response for the test prompt.',
+        provider: 'mock-provider',
+        processingMs: 42,
+      },
+    });
+  });
+}
+
 test('page loads and shows task cards', async ({ page }) => {
   await page.goto('/');
 
@@ -171,6 +194,38 @@ test('payment modal shows the correct price for the selected task type', async (
 
   await expect(page.getByRole('dialog', { name: 'Payment confirmation' })).toBeVisible();
   await expect(page.locator('.modal__amount')).toHaveText(/\$0\.08\s+cUSD/);
+});
+
+test('translate flow requires a target language and shows it end to end', async ({ page }) => {
+  await installMockWallet(page);
+  await mockFornoRpc(page);
+  await mockTranslateGeneration(page);
+  await page.goto('/');
+
+  await expect(page.locator('.wallet-banner__badge')).toHaveText('MiniPay');
+  await page.getByRole('button', { name: /translate, \$0\.02 cUSD/i }).click();
+  await page.getByLabel('Task prompt').fill('Translate this phrase for me.');
+
+  const payButton = page.getByRole('button', { name: 'Pay and generate' });
+  await expect(payButton).toBeDisabled();
+
+  await page.locator('#targetLanguage').selectOption('Yoruba');
+  await expect(payButton).toBeEnabled();
+
+  await payButton.click();
+  await expect(page.getByRole('dialog', { name: 'Payment confirmation' })).toContainText(
+    'Target language: Yoruba'
+  );
+
+  await page.getByRole('button', { name: /pay \$0\.02 cUSD/i }).click();
+
+  await expect(page.getByText('Translation output', { exact: true })).toBeVisible({
+    timeout: 15_000,
+  });
+  await expect(page.getByText('Target language: Yoruba')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('A translated response for the test prompt.')).toBeVisible({
+    timeout: 15_000,
+  });
 });
 
 test('health endpoint returns 200', async ({ page }) => {
