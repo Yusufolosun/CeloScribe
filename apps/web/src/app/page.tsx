@@ -9,8 +9,7 @@ import { TransactionHistory } from '@/components/TransactionHistory';
 import { WalletBanner } from '@/components/WalletBanner';
 import { useMiniPay } from '@/hooks/useMiniPay';
 import { useTaskPayment } from '@/hooks/useTaskPayment';
-import type { TaskResult } from '@/lib/ai/taskTypes';
-import type { TaskType } from '@/lib/ai/taskTypes';
+import type { TaskRequest, TaskResult, TaskType } from '@/lib/ai/taskTypes';
 import { TASK_LIMITS } from '@/lib/ai/taskTypes';
 import { getPromptLimitError } from '@/lib/ai/taskValidation';
 import {
@@ -35,6 +34,7 @@ export default function Home() {
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
   const [prompt, setPrompt] = useState('');
   const [targetLanguage, setTargetLanguage] = useState('');
+  const [pendingRequest, setPendingRequest] = useState<TaskRequest | null>(null);
   const [result, setResult] = useState<TaskResult | null>(null);
   const [resultError, setResultError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,6 +56,9 @@ export default function Home() {
   const promptError = promptValidationError ?? resultError;
   const isTranslateTask = selectedTask === 'TRANSLATE';
   const selectedTargetLanguage = targetLanguage.trim();
+  const pendingPrompt = pendingRequest?.prompt;
+  const pendingTaskType = pendingRequest?.taskType;
+  const pendingTargetLanguage = pendingRequest?.targetLanguage;
 
   const canOpenPayment = Boolean(
     selectedTask &&
@@ -65,7 +68,7 @@ export default function Home() {
   );
 
   useEffect(() => {
-    if (paymentState !== 'done' || !selectedTask || !txHash || !address) {
+    if (paymentState !== 'done' || !pendingPrompt || !pendingTaskType || !txHash || !address) {
       return;
     }
 
@@ -89,8 +92,9 @@ export default function Home() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            prompt,
-            taskType: selectedTask,
+            prompt: pendingPrompt,
+            taskType: pendingTaskType,
+            ...(pendingTargetLanguage ? { targetLanguage: pendingTargetLanguage } : {}),
             txHash,
             userAddress: address,
           }),
@@ -132,7 +136,7 @@ export default function Home() {
     return () => {
       isActive = false;
     };
-  }, [address, paymentState, prompt, selectedTask, txHash]);
+  }, [address, paymentState, pendingPrompt, pendingTargetLanguage, pendingTaskType, txHash]);
 
   function handleSelectTask(taskType: TaskType) {
     lastGeneratedTxHash.current = null;
@@ -140,6 +144,7 @@ export default function Home() {
     if (taskType !== 'TRANSLATE') {
       setTargetLanguage('');
     }
+    setPendingRequest(null);
     setResult(null);
     setResultError(null);
     setIsModalOpen(false);
@@ -162,17 +167,22 @@ export default function Home() {
     }
 
     lastGeneratedTxHash.current = null;
+    setPendingRequest({
+      prompt,
+      taskType: selectedTask,
+      ...(isTranslateTask ? { targetLanguage: selectedTargetLanguage } : {}),
+    });
     setResult(null);
     setResultError(null);
     setIsModalOpen(true);
   }
 
   async function handleConfirmPayment() {
-    if (!selectedTask) {
+    if (!pendingRequest) {
       return;
     }
 
-    await pay(selectedTask);
+    await pay(pendingRequest.taskType);
   }
 
   function handleCancelPayment() {
@@ -323,7 +333,7 @@ export default function Home() {
               isLoading={isGenerating}
               taskType={selectedTask}
               prompt={prompt}
-              targetLanguage={isTranslateTask ? targetLanguage : undefined}
+              targetLanguage={pendingRequest?.targetLanguage}
             />
           </div>
         </div>
@@ -335,6 +345,7 @@ export default function Home() {
         {isModalOpen && selectedTask && (
           <PaymentModal
             taskType={selectedTask}
+            targetLanguage={pendingRequest?.targetLanguage}
             paymentState={paymentState}
             error={paymentError}
             onConfirm={handleConfirmPayment}
