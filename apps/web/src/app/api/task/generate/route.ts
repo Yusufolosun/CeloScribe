@@ -27,6 +27,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   if (req.method !== 'POST') return methodNotAllowed(['POST']);
 
   const body = (await req.json()) as Partial<GenerateRequest>;
+  const targetLanguage =
+    typeof body.targetLanguage === 'string' ? body.targetLanguage.trim() : undefined;
 
   if (!body.txHash || !body.userAddress || !body.taskType || !body.prompt) {
     return badRequest('Required fields: txHash, userAddress, taskType, prompt');
@@ -48,6 +50,10 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     return badRequest(promptLimitError);
   }
 
+  if (body.taskType === 'TRANSLATE' && !targetLanguage) {
+    return badRequest('Required field: targetLanguage for TRANSLATE tasks.');
+  }
+
   const rateLimit = checkRateLimit(body.userAddress);
 
   if (!rateLimit.allowed) {
@@ -64,7 +70,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const result = await routeTask({
     taskType: body.taskType,
     prompt,
-    ...(body.targetLanguage ? { targetLanguage: body.targetLanguage } : {}),
+    ...(targetLanguage ? { targetLanguage } : {}),
   });
 
   return NextResponse.json(result);
