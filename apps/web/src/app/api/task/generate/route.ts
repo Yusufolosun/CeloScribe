@@ -4,8 +4,7 @@ import { type Address, type Hash } from 'viem';
 
 import { routeTask } from '@/lib/ai/router';
 import type { TaskType } from '@/lib/ai/taskTypes';
-import { TASK_LIMITS } from '@/lib/ai/taskTypes';
-import { isSupportedTaskType } from '@/lib/ai/taskValidation';
+import { getPromptLimitError, isSupportedTaskType } from '@/lib/ai/taskValidation';
 import {
   badRequest,
   methodNotAllowed,
@@ -43,10 +42,10 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     return badRequest(`Invalid taskType: ${body.taskType}`);
   }
 
-  const maxInputChars = TASK_LIMITS[body.taskType].maxInputChars;
+  const promptLimitError = getPromptLimitError(body.taskType, prompt);
 
-  if (prompt.length > maxInputChars) {
-    return badRequest(`Prompt too long. Max ${maxInputChars} characters for ${body.taskType}.`);
+  if (promptLimitError) {
+    return badRequest(promptLimitError);
   }
 
   const rateLimit = checkRateLimit(body.userAddress);

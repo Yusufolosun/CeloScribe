@@ -12,6 +12,7 @@ import { useTaskPayment } from '@/hooks/useTaskPayment';
 import type { TaskResult } from '@/lib/ai/taskTypes';
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { TASK_LIMITS } from '@/lib/ai/taskTypes';
+import { getPromptLimitError } from '@/lib/ai/taskValidation';
 import { TASK_PRICE_DISPLAY } from '@/lib/payment/taskPrices';
 
 const TASK_TYPES: TaskType[] = ['TEXT_SHORT', 'TEXT_LONG', 'IMAGE', 'TRANSLATE'];
@@ -39,6 +40,16 @@ export default function Home() {
 
     return TASK_LIMITS[selectedTask].maxInputChars;
   }, [selectedTask]);
+
+  const promptValidationError = useMemo(
+    () => getPromptLimitError(selectedTask, prompt),
+    [prompt, selectedTask]
+  );
+
+  const promptErrorId = 'taskPromptError';
+  const promptError = promptValidationError ?? resultError;
+
+  const canOpenPayment = Boolean(selectedTask && prompt.trim() && !promptValidationError);
 
   useEffect(() => {
     if (paymentState !== 'done' || !selectedTask || !txHash || !address) {
@@ -120,7 +131,7 @@ export default function Home() {
   }
 
   function handleOpenPayment() {
-    if (!selectedTask || !prompt.trim()) {
+    if (!selectedTask || !prompt.trim() || promptValidationError) {
       return;
     }
 
@@ -233,18 +244,18 @@ export default function Home() {
             </label>
             <textarea
               id="taskPrompt"
-              className="prompt-panel__field"
+              className={`prompt-panel__field ${promptValidationError ? 'prompt-panel__field--invalid' : ''}`}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
               placeholder="Describe what you want CeloScribe to generate..."
               disabled={!selectedTask}
-              aria-describedby="promptTitle"
-              aria-invalid={Boolean(resultError)}
+              aria-describedby={promptError ? `promptTitle ${promptErrorId}` : 'promptTitle'}
+              aria-invalid={Boolean(promptValidationError)}
             />
 
-            {resultError && (
-              <p className="prompt-panel__error" role="alert">
-                {resultError}
+            {promptError && (
+              <p id={promptErrorId} className="prompt-panel__error" role="alert">
+                {promptError}
               </p>
             )}
 
@@ -253,8 +264,8 @@ export default function Home() {
                 className="btn btn--primary"
                 type="button"
                 onClick={handleOpenPayment}
-                disabled={!selectedTask || !prompt.trim()}
-                aria-disabled={!selectedTask || !prompt.trim()}
+                disabled={!canOpenPayment}
+                aria-disabled={!canOpenPayment}
               >
                 Pay and generate
               </button>
