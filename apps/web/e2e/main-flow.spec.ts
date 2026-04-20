@@ -209,7 +209,7 @@ test('translate flow requires a target language and shows it end to end', async 
   const payButton = page.getByRole('button', { name: 'Pay and generate' });
   await expect(payButton).toBeDisabled();
 
-  await page.getByLabel('Target language').selectOption('Yoruba');
+  await page.locator('#targetLanguage').selectOption('Yoruba');
   await expect(payButton).toBeEnabled();
 
   await payButton.click();

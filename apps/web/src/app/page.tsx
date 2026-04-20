@@ -333,7 +333,7 @@ export default function Home() {
               isLoading={isGenerating}
               taskType={selectedTask}
               prompt={prompt}
-              targetLanguage={pendingRequest?.targetLanguage}
+              {...(pendingTargetLanguage ? { targetLanguage: pendingTargetLanguage } : {})}
             />
           </div>
         </div>
@@ -345,11 +345,11 @@ export default function Home() {
         {isModalOpen && selectedTask && (
           <PaymentModal
             taskType={selectedTask}
-            targetLanguage={pendingRequest?.targetLanguage}
             paymentState={paymentState}
             error={paymentError}
             onConfirm={handleConfirmPayment}
             onCancel={handleCancelPayment}
+            {...(pendingTargetLanguage ? { targetLanguage: pendingTargetLanguage } : {})}
           />
         )}
       </div>
