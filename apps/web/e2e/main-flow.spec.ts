@@ -138,6 +138,27 @@ test('submitting a prompt without wallet shows an error', async ({ page }) => {
   await expect(page.locator('.prompt-panel__error')).toHaveText('Connect your wallet to continue.');
 });
 
+test('blocks payment when the prompt exceeds the selected task limit', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByRole('button', { name: /short text, \$0\.01 cUSD/i }).click();
+
+  const prompt = page.getByLabel('Task prompt');
+  const payButton = page.getByRole('button', { name: 'Pay and generate' });
+
+  await prompt.fill('a'.repeat(501));
+
+  await expect(page.locator('.prompt-panel__error')).toHaveText(
+    'Prompt too long. Max 500 characters for TEXT_SHORT.'
+  );
+  await expect(payButton).toBeDisabled();
+
+  await prompt.fill('a'.repeat(500));
+
+  await expect(page.locator('.prompt-panel__error')).toHaveCount(0);
+  await expect(payButton).toBeEnabled();
+});
+
 test('payment modal shows the correct price for the selected task type', async ({ page }) => {
   await installMockWallet(page);
   await mockFornoRpc(page);
