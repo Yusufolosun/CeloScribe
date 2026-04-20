@@ -9,7 +9,13 @@
 .env.development.local
 .env.test.local
 *.env
+*.mnemonic
+*.seed
+*.secret
+*.secret.*
+.envrc
 secrets/
+.secrets/
 *.key
 *.pem
 *.p12
