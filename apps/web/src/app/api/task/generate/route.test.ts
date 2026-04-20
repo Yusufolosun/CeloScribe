@@ -83,6 +83,51 @@ describe('POST /api/task/generate', () => {
     });
   });
 
+  it('routes translate requests with the selected target language', async () => {
+    mockState.verifyPaymentMock.mockResolvedValue({ valid: true });
+    mockState.routeTaskMock.mockResolvedValue({
+      output: 'resultado traducido',
+      processingMs: 12,
+      provider: 'deepseek-chat',
+      taskType: 'TRANSLATE',
+      tokensUsed: 19,
+    });
+
+    const request = new Request('http://localhost/api/task/generate', {
+      body: JSON.stringify({
+        prompt: 'Translate this sentence.',
+        taskType: 'TRANSLATE',
+        targetLanguage: '  Spanish  ',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+    const payload = (await response.json()) as {
+      output: string;
+      provider: string;
+      taskType: string;
+      tokensUsed: number;
+    };
+
+    expect(response.status).toBe(200);
+    expect(payload).toEqual({
+      output: 'resultado traducido',
+      processingMs: 12,
+      provider: 'deepseek-chat',
+      taskType: 'TRANSLATE',
+      tokensUsed: 19,
+    });
+    expect(mockState.verifyPaymentMock).toHaveBeenCalledWith(TEST_TX_HASH, TEST_USER_ADDRESS, 3);
+    expect(mockState.routeTaskMock).toHaveBeenCalledWith({
+      prompt: 'Translate this sentence.',
+      taskType: 'TRANSLATE',
+      targetLanguage: 'Spanish',
+    });
+  });
+
   it('rejects unknown task types before payment verification', async () => {
     const request = new Request('http://localhost/api/task/generate', {
       body: JSON.stringify({
@@ -193,6 +238,26 @@ describe('POST /api/task/generate', () => {
 
     expect(response.status).toBe(400);
     expect(payload.error).toBe('Prompt too long. Max 500 characters for TEXT_SHORT.');
+    expect(mockState.verifyPaymentMock).not.toHaveBeenCalled();
+    expect(mockState.routeTaskMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects translate requests without a target language before payment verification', async () => {
+    const request = new Request('http://localhost/api/task/generate', {
+      body: JSON.stringify({
+        prompt: 'Translate this sentence.',
+        taskType: 'TRANSLATE',
+        txHash: TEST_TX_HASH,
+        userAddress: TEST_USER_ADDRESS,
+      }),
+      method: 'POST',
+    });
+
+    const response = await POST(request as never);
+    const payload = (await response.json()) as { error: string };
+
+    expect(response.status).toBe(400);
+    expect(payload.error).toBe('Required field: targetLanguage for TRANSLATE tasks.');
     expect(mockState.verifyPaymentMock).not.toHaveBeenCalled();
     expect(mockState.routeTaskMock).not.toHaveBeenCalled();
   });
