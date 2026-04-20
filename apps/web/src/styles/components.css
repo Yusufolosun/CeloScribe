@@ -273,6 +273,11 @@
   outline-offset: 2px;
 }
 
+.prompt-panel__field--invalid {
+  border-color: color-mix(in srgb, var(--color-error) 72%, var(--color-border));
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.18);
+}
+
 .prompt-panel__actions,
 .modal__actions,
 .result-panel__actions {

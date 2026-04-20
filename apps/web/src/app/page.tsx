@@ -244,7 +244,7 @@ export default function Home() {
             </label>
             <textarea
               id="taskPrompt"
-              className="prompt-panel__field"
+              className={`prompt-panel__field ${promptValidationError ? 'prompt-panel__field--invalid' : ''}`}
               value={prompt}
               onChange={(event) => setPrompt(event.target.value)}
               placeholder="Describe what you want CeloScribe to generate..."
