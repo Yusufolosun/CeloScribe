@@ -46,6 +46,9 @@ export default function Home() {
     [prompt, selectedTask]
   );
 
+  const promptErrorId = 'taskPromptError';
+  const promptError = promptValidationError ?? resultError;
+
   const canOpenPayment = Boolean(selectedTask && prompt.trim() && !promptValidationError);
 
   useEffect(() => {
@@ -246,13 +249,13 @@ export default function Home() {
               onChange={(event) => setPrompt(event.target.value)}
               placeholder="Describe what you want CeloScribe to generate..."
               disabled={!selectedTask}
-              aria-describedby="promptTitle"
-              aria-invalid={Boolean(resultError)}
+              aria-describedby={promptError ? `promptTitle ${promptErrorId}` : 'promptTitle'}
+              aria-invalid={Boolean(promptValidationError)}
             />
 
-            {resultError && (
-              <p className="prompt-panel__error" role="alert">
-                {resultError}
+            {promptError && (
+              <p id={promptErrorId} className="prompt-panel__error" role="alert">
+                {promptError}
               </p>
             )}
 
