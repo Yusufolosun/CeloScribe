@@ -13,6 +13,10 @@ import type { TaskResult } from '@/lib/ai/taskTypes';
 import type { TaskType } from '@/lib/ai/taskTypes';
 import { TASK_LIMITS } from '@/lib/ai/taskTypes';
 import { getPromptLimitError } from '@/lib/ai/taskValidation';
+import {
+  TRANSLATION_TARGET_OPTIONS,
+  TRANSLATION_TARGET_PLACEHOLDER,
+} from '@/lib/ai/translationTargets';
 import { TASK_PRICE_DISPLAY } from '@/lib/payment/taskPrices';
 
 const TASK_TYPES: TaskType[] = ['TEXT_SHORT', 'TEXT_LONG', 'IMAGE', 'TRANSLATE'];
@@ -30,6 +34,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'generate' | 'history'>('generate');
   const [selectedTask, setSelectedTask] = useState<TaskType | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('');
   const [result, setResult] = useState<TaskResult | null>(null);
   const [resultError, setResultError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,9 +52,17 @@ export default function Home() {
   );
 
   const promptErrorId = 'taskPromptError';
+  const targetLanguageHintId = 'targetLanguageHint';
   const promptError = promptValidationError ?? resultError;
+  const isTranslateTask = selectedTask === 'TRANSLATE';
+  const selectedTargetLanguage = targetLanguage.trim();
 
-  const canOpenPayment = Boolean(selectedTask && prompt.trim() && !promptValidationError);
+  const canOpenPayment = Boolean(
+    selectedTask &&
+    prompt.trim() &&
+    !promptValidationError &&
+    (!isTranslateTask || selectedTargetLanguage)
+  );
 
   useEffect(() => {
     if (paymentState !== 'done' || !selectedTask || !txHash || !address) {
@@ -124,6 +137,9 @@ export default function Home() {
   function handleSelectTask(taskType: TaskType) {
     lastGeneratedTxHash.current = null;
     setSelectedTask(taskType);
+    if (taskType !== 'TRANSLATE') {
+      setTargetLanguage('');
+    }
     setResult(null);
     setResultError(null);
     setIsModalOpen(false);
@@ -253,6 +269,35 @@ export default function Home() {
               aria-invalid={Boolean(promptValidationError)}
             />
 
+            {isTranslateTask && (
+              <div className="prompt-panel__control-group">
+                <div>
+                  <label className="prompt-panel__label" htmlFor="targetLanguage">
+                    Target language
+                  </label>
+                  <p id={targetLanguageHintId} className="prompt-panel__hint">
+                    Pick the language for the translation before paying.
+                  </p>
+                </div>
+                <select
+                  id="targetLanguage"
+                  className={`prompt-panel__select ${selectedTargetLanguage ? '' : 'prompt-panel__select--placeholder'}`}
+                  value={targetLanguage}
+                  onChange={(event) => setTargetLanguage(event.target.value)}
+                  aria-describedby={targetLanguageHintId}
+                >
+                  <option value="" disabled>
+                    {TRANSLATION_TARGET_PLACEHOLDER}
+                  </option>
+                  {TRANSLATION_TARGET_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {promptError && (
               <p id={promptErrorId} className="prompt-panel__error" role="alert">
                 {promptError}
@@ -278,6 +323,7 @@ export default function Home() {
               isLoading={isGenerating}
               taskType={selectedTask}
               prompt={prompt}
+              targetLanguage={isTranslateTask ? targetLanguage : undefined}
             />
           </div>
         </div>
