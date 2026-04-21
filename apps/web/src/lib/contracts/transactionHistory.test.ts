@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapPaymentReceivedLog, sortHistoryEntries } from './transactionHistory';
+import {
+  mapPaymentReceivedLog,
+  parseTransactionHistoryLogs,
+  sortHistoryEntries,
+} from './transactionHistory';
 
 describe('mapPaymentReceivedLog', () => {
   it('maps a known payment log into a history entry', () => {
@@ -116,5 +120,11 @@ describe('sortHistoryEntries', () => {
     };
 
     expect([earlierEntry, laterEntry].sort(sortHistoryEntries)).toEqual([laterEntry, earlierEntry]);
+  });
+});
+
+describe('parseTransactionHistoryLogs', () => {
+  it('returns an empty array when no logs are present', () => {
+    expect(parseTransactionHistoryLogs([])).toEqual([]);
   });
 });
