@@ -17,6 +17,8 @@ The MiniApp UI is the user-facing entry point that will live in the Next.js fron
 
 The frontend now includes a dedicated web3 client layer made up of Wagmi, Viem, React Query, and Thirdweb. That layer is mounted once in the root layout so wallet state is available to any component that needs it.
 
+Transaction history queries start from the payment contract deployment block instead of block zero, which keeps the history tab responsive as on-chain activity grows.
+
 MiniPay detection happens in the browser through `window.ethereum.isMiniPay`, but payment authorization still remains outside the browser and depends on server-side verification.
 
 ### Smart Contract
