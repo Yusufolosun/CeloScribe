@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mapPaymentReceivedLog } from './transactionHistory';
+import { mapPaymentReceivedLog, sortHistoryEntries } from './transactionHistory';
 
 describe('mapPaymentReceivedLog', () => {
   it('maps a known payment log into a history entry', () => {
@@ -60,5 +60,28 @@ describe('mapPaymentReceivedLog', () => {
       timestamp: 1_700_000_200,
       txHash: '',
     });
+  });
+});
+
+describe('sortHistoryEntries', () => {
+  it('orders newer blocks before older blocks', () => {
+    const entries = [
+      {
+        amount: '1',
+        blockNumber: 11n,
+        taskType: 'TEXT_SHORT' as const,
+        timestamp: 1_700_000_100,
+        txHash: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      },
+      {
+        amount: '2',
+        blockNumber: 12n,
+        taskType: 'IMAGE' as const,
+        timestamp: 1_700_000_200,
+        txHash: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      },
+    ];
+
+    expect([...entries].sort(sortHistoryEntries)).toEqual([entries[1], entries[0]]);
   });
 });
