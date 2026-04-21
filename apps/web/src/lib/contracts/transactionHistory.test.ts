@@ -42,4 +42,23 @@ describe('mapPaymentReceivedLog', () => {
       txHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
     });
   });
+
+  it('uses an empty hash when the log omits the transaction hash', () => {
+    expect(
+      mapPaymentReceivedLog({
+        blockNumber: 14n,
+        args: {
+          amount: 3_000_000_000_000_000_000n,
+          taskType: 1,
+          timestamp: 1_700_000_200n,
+        },
+      })
+    ).toEqual({
+      amount: '3',
+      blockNumber: 14n,
+      taskType: 'TEXT_LONG',
+      timestamp: 1_700_000_200,
+      txHash: '',
+    });
+  });
 });
