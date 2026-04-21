@@ -72,8 +72,8 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
             Transaction history
           </h2>
           <p className="transaction-history__subtitle">
-            PaymentReceived events are read directly from Celo, so the chain remains the source of
-            truth.
+            PaymentReceived events are read from the contract deployment block onward, so the scan
+            stays bounded while Celo remains the source of truth.
           </p>
         </div>
 
@@ -89,8 +89,8 @@ export function TransactionHistory({ userAddress }: TransactionHistoryProps) {
           Transaction history
         </h2>
         <p className="transaction-history__subtitle">
-          PaymentReceived events are read directly from Celo, so the chain remains the source of
-          truth.
+          PaymentReceived events are read from the contract deployment block onward, so the scan
+          stays bounded while Celo remains the source of truth.
         </p>
       </div>
 

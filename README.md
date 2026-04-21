@@ -69,9 +69,10 @@ pnpm --dir packages/contracts deploy:mainnet
 ```
 
 3. Copy the printed contract address into `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS`.
-4. Re-run `pnpm --dir apps/web build` so the frontend bakes in the deployed address.
-5. Deploy the web app to your host of choice after the build succeeds.
-6. Send a small end-to-end test payment from MiniPay on Celo mainnet and confirm the `/api/task/generate` flow succeeds.
+4. Update `apps/web/src/lib/contracts/celoScribeDeployment.ts` with the new deployment block so the history tab keeps its scan bounded.
+5. Re-run `pnpm --dir apps/web build` so the frontend bakes in the deployed address.
+6. Deploy the web app to your host of choice after the build succeeds.
+7. Send a small end-to-end test payment from MiniPay on Celo mainnet and confirm the `/api/task/generate` flow succeeds.
 
 ## Development Commands
 

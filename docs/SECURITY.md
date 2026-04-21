@@ -4,6 +4,8 @@
 
 All secrets must remain outside the repository and outside the browser runtime. Environment values should be provided locally through untracked files such as `.env.local` and in deployment environments through the platform secret manager.
 
+The repository ignore rules already cover local environment files, mnemonic files, seed files, and private keys. Keep those patterns in place whenever new secret-bearing files are introduced.
+
 Public client IDs used by the Thirdweb SDK are not secrets, but they should still be sourced from environment variables so the frontend config stays portable.
 
 ## What Is Never Committed

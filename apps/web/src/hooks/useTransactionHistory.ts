@@ -2,34 +2,19 @@
 
 import { useEffect, useState } from 'react';
 
-import { type Address, createPublicClient, formatEther, http, parseAbiItem } from 'viem';
+import { type Address, createPublicClient, http } from 'viem';
 
-import type { TaskType } from '@/lib/ai/taskTypes';
 import { celo } from '@/lib/chains';
+import {
+  CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
+  type HistoryEntry,
+  loadTransactionHistory,
+} from '@/lib/contracts';
 import { optionalPublicEnv, requirePublicAddressEnv } from '@/lib/publicEnv';
-
-const TASK_NAMES: Record<number, TaskType> = {
-  0: 'TEXT_SHORT',
-  1: 'TEXT_LONG',
-  2: 'IMAGE',
-  3: 'TRANSLATE',
-};
-
-export interface HistoryEntry {
-  txHash: string;
-  taskType: TaskType;
-  amount: string;
-  blockNumber: bigint;
-  timestamp?: number;
-}
 
 const CONTRACT_ADDRESS = requirePublicAddressEnv(
   'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
 ) as Address;
-
-const paymentEvent = parseAbiItem(
-  'event PaymentReceived(address indexed user, uint8 indexed taskType, uint256 amount, uint256 timestamp)'
-);
 
 const CELO_RPC_URL = optionalPublicEnv('NEXT_PUBLIC_CELO_RPC_URL', 'https://forno.celo.org');
 
@@ -46,6 +31,8 @@ export function useTransactionHistory(userAddress: Address | undefined) {
       return;
     }
 
+    const currentUserAddress = userAddress;
+
     let cancelled = false;
 
     async function fetchHistory() {
@@ -58,40 +45,14 @@ export function useTransactionHistory(userAddress: Address | undefined) {
           transport: http(CELO_RPC_URL),
         });
 
-        const logs = await client.getLogs({
-          address: CONTRACT_ADDRESS,
-          event: paymentEvent,
-          args: { user: userAddress },
-          fromBlock: BigInt(0), // Replace with the deployment block number in production to avoid scanning the entire chain history.
-          toBlock: 'latest',
+        const entries = await loadTransactionHistory({
+          client,
+          contractAddress: CONTRACT_ADDRESS,
+          fromBlock: CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
+          userAddress: currentUserAddress,
         });
 
         if (cancelled) return;
-
-        const entries: HistoryEntry[] = logs
-          .map((log) => {
-            const { taskType, amount, timestamp } = log.args as {
-              taskType: number;
-              amount: bigint;
-              timestamp: bigint;
-            };
-
-            const resolvedTaskType = TASK_NAMES[taskType] ?? 'TEXT_SHORT';
-
-            return {
-              txHash: log.transactionHash ?? '',
-              taskType: resolvedTaskType,
-              amount: formatEther(amount),
-              blockNumber: log.blockNumber,
-              timestamp: Number(timestamp),
-            };
-          })
-          .sort((left, right) => {
-            if (left.blockNumber > right.blockNumber) return -1;
-            if (left.blockNumber < right.blockNumber) return 1;
-
-            return (right.timestamp ?? 0) - (left.timestamp ?? 0);
-          });
 
         setHistory(entries);
       } catch (fetchError) {
