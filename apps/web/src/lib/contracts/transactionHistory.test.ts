@@ -61,6 +61,20 @@ describe('mapPaymentReceivedLog', () => {
       txHash: '',
     });
   });
+
+  it('formats the payment amount as cUSD text', () => {
+    expect(
+      mapPaymentReceivedLog({
+        transactionHash: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+        blockNumber: 15n,
+        args: {
+          amount: 1_500_000_000_000_000_000n,
+          taskType: 0,
+          timestamp: 1_700_000_300n,
+        },
+      }).amount
+    ).toBe('1.5');
+  });
 });
 
 describe('sortHistoryEntries', () => {
