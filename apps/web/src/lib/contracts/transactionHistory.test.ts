@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK } from './celoScribeDeployment';
 import {
-  CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
   loadTransactionHistory,
   mapPaymentReceivedLog,
   parseTransactionHistoryLogs,
@@ -147,5 +147,51 @@ describe('loadTransactionHistory', () => {
         toBlock: 'latest',
       })
     );
+  });
+
+  it('returns parsed history entries', async () => {
+    const getLogs = vi.fn().mockResolvedValue([
+      {
+        transactionHash: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        blockNumber: 20n,
+        args: {
+          amount: 1_000_000_000_000_000_000n,
+          taskType: 0,
+          timestamp: 1_700_000_100n,
+        },
+      },
+      {
+        transactionHash: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+        blockNumber: 21n,
+        args: {
+          amount: 2_000_000_000_000_000_000n,
+          taskType: 1,
+          timestamp: 1_700_000_200n,
+        },
+      },
+    ]);
+
+    await expect(
+      loadTransactionHistory({
+        client: { getLogs },
+        contractAddress: '0x0000000000000000000000000000000000000001',
+        userAddress: '0x0000000000000000000000000000000000000002',
+      })
+    ).resolves.toEqual([
+      {
+        amount: '2',
+        blockNumber: 21n,
+        taskType: 'TEXT_LONG',
+        timestamp: 1_700_000_200,
+        txHash: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      },
+      {
+        amount: '1',
+        blockNumber: 20n,
+        taskType: 'TEXT_SHORT',
+        timestamp: 1_700_000_100,
+        txHash: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      },
+    ]);
   });
 });
