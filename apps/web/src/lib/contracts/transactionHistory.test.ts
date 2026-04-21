@@ -84,4 +84,23 @@ describe('sortHistoryEntries', () => {
 
     expect([...entries].sort(sortHistoryEntries)).toEqual([entries[1], entries[0]]);
   });
+
+  it('uses the timestamp as the tie-breaker within a block', () => {
+    const earlierEntry = {
+      amount: '1',
+      blockNumber: 13n,
+      taskType: 'TEXT_SHORT' as const,
+      timestamp: 1_700_000_050,
+      txHash: '0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+    };
+    const laterEntry = {
+      amount: '1',
+      blockNumber: 13n,
+      taskType: 'TRANSLATE' as const,
+      timestamp: 1_700_000_150,
+      txHash: '0xdddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+    };
+
+    expect([earlierEntry, laterEntry].sort(sortHistoryEntries)).toEqual([laterEntry, earlierEntry]);
+  });
 });
