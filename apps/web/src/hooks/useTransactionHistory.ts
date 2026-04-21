@@ -9,7 +9,7 @@ import {
   CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
   type HistoryEntry,
   loadTransactionHistory,
-} from '@/lib/contracts/transactionHistory';
+} from '@/lib/contracts';
 import { optionalPublicEnv, requirePublicAddressEnv } from '@/lib/publicEnv';
 
 const CONTRACT_ADDRESS = requirePublicAddressEnv(
