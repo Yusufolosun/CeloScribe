@@ -22,4 +22,24 @@ describe('mapPaymentReceivedLog', () => {
       txHash: '0x1111111111111111111111111111111111111111111111111111111111111111',
     });
   });
+
+  it('falls back to the default task type for unknown codes', () => {
+    expect(
+      mapPaymentReceivedLog({
+        transactionHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
+        blockNumber: 13n,
+        args: {
+          amount: 2_000_000_000_000_000_000n,
+          taskType: 99,
+          timestamp: 1_700_000_100n,
+        },
+      })
+    ).toEqual({
+      amount: '2',
+      blockNumber: 13n,
+      taskType: 'TEXT_SHORT',
+      timestamp: 1_700_000_100,
+      txHash: '0x2222222222222222222222222222222222222222222222222222222222222222',
+    });
+  });
 });
