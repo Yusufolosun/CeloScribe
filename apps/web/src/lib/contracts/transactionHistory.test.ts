@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
+  CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
+  loadTransactionHistory,
   mapPaymentReceivedLog,
   parseTransactionHistoryLogs,
   sortHistoryEntries,
@@ -126,5 +128,24 @@ describe('sortHistoryEntries', () => {
 describe('parseTransactionHistoryLogs', () => {
   it('returns an empty array when no logs are present', () => {
     expect(parseTransactionHistoryLogs([])).toEqual([]);
+  });
+});
+
+describe('loadTransactionHistory', () => {
+  it('requests logs from the deployment block', async () => {
+    const getLogs = vi.fn().mockResolvedValue([]);
+
+    await loadTransactionHistory({
+      client: { getLogs },
+      contractAddress: '0x0000000000000000000000000000000000000001',
+      userAddress: '0x0000000000000000000000000000000000000002',
+    });
+
+    expect(getLogs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fromBlock: CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
+        toBlock: 'latest',
+      })
+    );
   });
 });
