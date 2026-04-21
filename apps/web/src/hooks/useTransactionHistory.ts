@@ -31,6 +31,8 @@ export function useTransactionHistory(userAddress: Address | undefined) {
       return;
     }
 
+    const currentUserAddress = userAddress;
+
     let cancelled = false;
 
     async function fetchHistory() {
@@ -47,7 +49,7 @@ export function useTransactionHistory(userAddress: Address | undefined) {
           client,
           contractAddress: CONTRACT_ADDRESS,
           fromBlock: CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
-          userAddress,
+          userAddress: currentUserAddress,
         });
 
         if (cancelled) return;
