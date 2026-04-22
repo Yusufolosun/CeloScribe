@@ -16,7 +16,12 @@ export function useMiniPay() {
   const isOnCelo = chain?.id === celo.id;
 
   function connectWallet() {
-    const connector = connectors[0];
+    const connector =
+      walletConnectionState === 'miniPay'
+        ? (connectors[0] ?? connectors[1])
+        : walletConnectionState === 'injected'
+          ? (connectors[1] ?? connectors[0])
+          : undefined;
 
     if (!connector) return;
 
