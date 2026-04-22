@@ -5,9 +5,21 @@ export const MOCK_CHAIN_ID = 42220;
 
 type Listener = (...args: unknown[]) => void;
 
+type WalletFixtureOptions = {
+  address?: string;
+  chainId?: number;
+  isMiniPay?: boolean;
+};
+
 export async function installMockWallet(page: Page) {
+  await installInjectedWallet(page, { isMiniPay: true });
+}
+
+export async function installInjectedWallet(page: Page, options: WalletFixtureOptions = {}) {
+  const { address = MOCK_ADDRESS, chainId = MOCK_CHAIN_ID, isMiniPay = false } = options;
+
   await page.addInitScript(
-    ({ address, chainId }) => {
+    ({ address, chainId, isMiniPay }) => {
       const listeners = new Map<string, Set<Listener>>();
       const accounts = [address];
 
@@ -22,7 +34,7 @@ export async function installMockWallet(page: Page) {
       }
 
       const ethereum = {
-        isMiniPay: true,
+        isMiniPay,
         chainId: `0x${chainId.toString(16)}`,
         selectedAddress: address,
         async request({ method }: { method: string }) {
@@ -88,8 +100,9 @@ export async function installMockWallet(page: Page) {
       };
     },
     {
-      address: MOCK_ADDRESS,
-      chainId: MOCK_CHAIN_ID,
+      address,
+      chainId,
+      isMiniPay,
     }
   );
 }

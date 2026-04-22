@@ -10,7 +10,7 @@ CeloScribe is a Celo-based MiniApp that will let users pay for AI access one req
 
 CeloScribe keeps the monorepo shape and MiniPay wallet patterns that Celo Composer emphasizes, but it is customized for the CeloScribe product flow.
 
-- `apps/web` keeps the explicit MiniPay connect flow, chain guards, and live CELO/cUSD balance summary.
+- `apps/web` keeps a MiniPay-first connect flow with a clear fallback for injected wallets and an explicit unsupported state when no provider is available.
 - The composer validates prompt length against the selected task limit before payment opens, so oversized requests are blocked locally instead of failing after an on-chain payment.
 - Translate requests now require a target-language selection in the compose flow, and the confirmed language is carried through payment and `/api/task/generate` so the output matches the request the user approved.
 - `packages/contracts` contains the payment contract workspace.

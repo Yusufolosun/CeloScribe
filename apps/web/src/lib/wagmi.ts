@@ -26,6 +26,7 @@ export const wagmiConfig = createConfig({
     injected({
       target: miniPayTarget,
     }),
+    injected(),
   ],
   transports: {
     [celo.id]: http(celoRpcUrl),

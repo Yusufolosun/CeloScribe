@@ -3,7 +3,7 @@
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 
 import { celo } from '@/lib/chains';
-import { detectMiniPay } from '@/lib/minipay';
+import { detectMiniPay, getWalletConnectionState, hasInjectedWallet } from '@/lib/minipay';
 
 export function useMiniPay() {
   const { address, isConnected, chain } = useAccount();
@@ -11,10 +11,17 @@ export function useMiniPay() {
   const { disconnect } = useDisconnect();
 
   const isMiniPay = detectMiniPay();
+  const hasWalletProvider = hasInjectedWallet();
+  const walletConnectionState = getWalletConnectionState();
   const isOnCelo = chain?.id === celo.id;
 
   function connectWallet() {
-    const connector = connectors[0];
+    const connector =
+      walletConnectionState === 'miniPay'
+        ? (connectors[0] ?? connectors[1])
+        : walletConnectionState === 'injected'
+          ? (connectors[1] ?? connectors[0])
+          : undefined;
 
     if (!connector) return;
 
@@ -29,6 +36,8 @@ export function useMiniPay() {
     isConnected,
     isConnecting,
     isMiniPay,
+    hasWalletProvider,
     isOnCelo,
+    walletConnectionState,
   };
 }
