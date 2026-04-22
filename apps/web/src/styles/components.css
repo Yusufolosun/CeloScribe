@@ -79,7 +79,11 @@
 }
 
 .task-tabs__button--active {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 88%, white), var(--color-accent));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 88%, white),
+    var(--color-accent)
+  );
   color: #062a16;
 }
 
@@ -105,7 +109,11 @@
   padding: 0.95rem;
   color: var(--color-text);
   text-align: left;
-  transition: border-color 160ms ease, transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .task-card:hover:not(:disabled),
@@ -182,32 +190,78 @@
 
 .wallet-banner {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  min-height: 3rem;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.1rem;
+  background: rgba(17, 24, 39, 0.92);
+  padding: 0.95rem 1rem;
+  color: var(--color-text);
 }
 
 .wallet-banner--connected {
-  justify-content: flex-start;
   border: 1px solid rgba(53, 208, 127, 0.22);
-  border-radius: 999px;
-  background: rgba(17, 24, 39, 0.92);
-  padding: 0.6rem 0.85rem;
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.88rem;
+  background: linear-gradient(180deg, rgba(11, 46, 31, 0.94), rgba(17, 24, 39, 0.95));
+}
+
+.wallet-banner--miniPay {
+  border-color: rgba(53, 208, 127, 0.24);
+  background: linear-gradient(180deg, rgba(11, 46, 31, 0.94), rgba(17, 24, 39, 0.95));
+}
+
+.wallet-banner--injected {
+  border-color: rgba(96, 165, 250, 0.24);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(17, 24, 39, 0.95));
+}
+
+.wallet-banner--unsupported {
+  border-color: rgba(248, 113, 113, 0.24);
+  background: linear-gradient(180deg, rgba(54, 20, 30, 0.95), rgba(17, 24, 39, 0.95));
 }
 
 .wallet-banner__dot {
-  width: 0.6rem;
-  height: 0.6rem;
+  flex-shrink: 0;
+  width: 0.7rem;
+  height: 0.7rem;
   border-radius: 999px;
   background: var(--color-accent);
   box-shadow: 0 0 0 6px rgba(53, 208, 127, 0.12);
+  margin-top: 0.2rem;
+}
+
+.wallet-banner__status-copy {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.wallet-banner__eyebrow {
+  color: var(--color-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.wallet-banner__title {
+  color: var(--color-text);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wallet-banner__detail {
+  color: var(--color-muted);
+  font-size: 0.83rem;
+  line-height: 1.45;
 }
 
 .wallet-banner__badge {
+  align-self: center;
   border: 1px solid rgba(53, 208, 127, 0.24);
   border-radius: 999px;
   background: rgba(26, 107, 63, 0.28);
@@ -217,6 +271,37 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.wallet-banner .btn {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.wallet-banner--connected .wallet-banner__badge {
+  border-color: rgba(53, 208, 127, 0.28);
+  background: rgba(26, 107, 63, 0.34);
+}
+
+.wallet-banner--connected.wallet-banner--injected .wallet-banner__badge {
+  border-color: rgba(96, 165, 250, 0.28);
+  background: rgba(30, 64, 175, 0.28);
+  color: #93c5fd;
+}
+
+@media (max-width: 640px) {
+  .wallet-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wallet-banner .btn {
+    width: 100%;
+  }
+
+  .wallet-banner__badge {
+    align-self: flex-start;
+  }
 }
 
 .prompt-panel {
@@ -330,7 +415,12 @@
   font: inherit;
   font-weight: 700;
   line-height: 1;
-  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, color 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
 }
 
 .btn:focus-visible {
@@ -344,7 +434,11 @@
 }
 
 .btn--primary {
-  background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 88%, white), var(--color-accent));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 88%, white),
+    var(--color-accent)
+  );
   color: #062a16;
 }
 
@@ -606,7 +700,12 @@
 .transaction-history__line {
   display: block;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(148, 163, 184, 0.12), rgba(148, 163, 184, 0.22), rgba(148, 163, 184, 0.12));
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.12),
+    rgba(148, 163, 184, 0.22),
+    rgba(148, 163, 184, 0.12)
+  );
   background-size: 200% 100%;
   animation: transaction-history-shimmer 1.4s ease-in-out infinite;
 }

@@ -22,7 +22,7 @@ const walletBannerCopy = {
     eyebrow: 'MiniPay required',
     title: 'No injected wallet was found.',
     detail: 'Open CeloScribe in MiniPay or install a browser wallet before continuing.',
-    actionLabel: 'No wallet available',
+    actionLabel: 'Open in MiniPay',
   },
 } as const;
 
@@ -54,7 +54,11 @@ export function WalletBanner() {
 
   if (isConnected) {
     return (
-      <div className="wallet-banner wallet-banner--connected" aria-live="polite">
+      <div
+        className={`wallet-banner wallet-banner--connected wallet-banner--${walletConnectionState}`}
+        aria-live="polite"
+      >
+        <span className="wallet-banner__dot" aria-hidden="true" />
         <div className="wallet-banner__status-copy">
           <span className="wallet-banner__eyebrow">{bannerCopy.eyebrow}</span>
           <span className="wallet-banner__title" aria-label={`Connected wallet ${address ?? ''}`}>
