@@ -1,6 +1,6 @@
 import { type Page, expect, test } from '@playwright/test';
 
-import { MOCK_ADDRESS, installMockWallet } from './fixtures/mockWallet';
+import { MOCK_ADDRESS, installInjectedWallet, installMockWallet } from './fixtures/mockWallet';
 
 const mockTaskResult = {
   taskType: 'TEXT_SHORT' as const,
@@ -122,10 +122,23 @@ test('page loads and shows task cards', async ({ page }) => {
   await expect(page.getByRole('button', { name: /translate, \$0\.02 cUSD/i })).toBeVisible();
 });
 
-test('wallet banner shows connect wallet when disconnected', async ({ page }) => {
+test('wallet banner explains the unsupported state when no wallet is injected', async ({
+  page,
+}) => {
   await page.goto('/');
 
-  await expect(page.getByRole('button', { name: 'Connect wallet' })).toBeVisible();
+  await expect(page.getByText('MiniPay required')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open in MiniPay' })).toBeDisabled();
+});
+
+test('wallet banner shows a connected fallback wallet for a generic provider', async ({ page }) => {
+  await installInjectedWallet(page);
+  await mockFornoRpc(page);
+  await page.goto('/');
+
+  await expect(page.getByText('Connected through a browser wallet.')).toBeVisible();
+  await expect(page.getByText('0x1234...7890')).toBeVisible();
+  await expect(page.locator('.wallet-banner__badge')).toHaveText('Injected');
 });
 
 test('wallet banner shows the connected wallet address after mock injection', async ({ page }) => {
