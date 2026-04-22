@@ -199,12 +199,12 @@ export default function Home() {
             Choose a task, pay in cUSD, and get the result in one flow.
           </h1>
           <p className="task-flow__subtitle">
-            Built for the MiniPay browser first: compact spacing, readable type, and no external
-            font runtime dependencies.
+            Built for MiniPay first, with a clear fallback for injected wallets and an explicit
+            unsupported state when no provider is available.
           </p>
         </section>
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 w-full">
           <WalletBanner />
         </div>
 
