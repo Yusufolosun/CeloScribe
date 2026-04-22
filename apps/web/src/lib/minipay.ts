@@ -7,3 +7,23 @@ export function detectMiniPay(): boolean {
 
   return window.ethereum?.isMiniPay === true;
 }
+
+export type WalletConnectionState = 'miniPay' | 'injected' | 'unsupported';
+
+export function hasInjectedWallet(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  return Boolean(window.ethereum);
+}
+
+export function getWalletConnectionState(): WalletConnectionState {
+  if (detectMiniPay()) {
+    return 'miniPay';
+  }
+
+  if (hasInjectedWallet()) {
+    return 'injected';
+  }
+
+  return 'unsupported';
+}
