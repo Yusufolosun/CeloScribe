@@ -31,11 +31,12 @@ vi.mock('viem', () => ({
 }));
 
 vi.mock('@/lib/env', () => ({
-  env: {
+  getServerEnv: () => ({
     CELO_RPC_URL: 'http://localhost:8545',
     CONTRACT_ADDRESS: '0x0000000000000000000000000000000000000001',
     NODE_ENV: 'production',
-  },
+    PAYMENT_MIN_CONFIRMATIONS: undefined,
+  }),
 }));
 
 vi.mock('@/lib/chains', () => ({

@@ -1,7 +1,7 @@
 import { type Address, type Hash, createPublicClient, http, parseAbiItem } from 'viem';
 
 import { celo } from '@/lib/chains';
-import { env } from '@/lib/env';
+import { getServerEnv } from '@/lib/env';
 import { logger } from '@/lib/logger';
 
 // TaskType enum mirrors the contract's enum — must stay in sync.
@@ -20,19 +20,35 @@ export interface VerificationResult {
   amount?: bigint;
 }
 
-const client = createPublicClient({
-  chain: celo,
-  transport: http(env.CELO_RPC_URL),
-});
+let paymentClient: {
+  rpcUrl: string;
+  client: ReturnType<typeof createPublicClient>;
+} | null = null;
 
-const CONTRACT_ADDRESS = env.CONTRACT_ADDRESS as Address;
-const MIN_CONFIRMATIONS = env.PAYMENT_MIN_CONFIRMATIONS ?? (env.NODE_ENV === 'production' ? 3 : 1);
+function getPaymentClient(rpcUrl: string): ReturnType<typeof createPublicClient> {
+  if (!paymentClient || paymentClient.rpcUrl !== rpcUrl) {
+    paymentClient = {
+      rpcUrl,
+      client: createPublicClient({
+        chain: celo,
+        transport: http(rpcUrl),
+      }),
+    };
+  }
+
+  return paymentClient.client;
+}
 
 export async function verifyPayment(
   txHash: Hash,
   expectedUser: Address,
   expectedTaskType: TaskType
 ): Promise<VerificationResult> {
+  const env = getServerEnv();
+  const client = getPaymentClient(env.CELO_RPC_URL);
+  const contractAddress = env.CONTRACT_ADDRESS as Address;
+  const minConfirmations = env.PAYMENT_MIN_CONFIRMATIONS ?? (env.NODE_ENV === 'production' ? 3 : 1);
+
   const receipt = await client.getTransactionReceipt({ hash: txHash });
   const expectedTxHash = txHash.toLowerCase();
 
@@ -44,18 +60,18 @@ export async function verifyPayment(
   const latestBlock = await client.getBlockNumber();
   const confirmations = Number(latestBlock - receipt.blockNumber + BigInt(1));
 
-  if (confirmations < MIN_CONFIRMATIONS) {
+  if (confirmations < minConfirmations) {
     logger.warn({ msg: 'Payment verification failed', txHash, reason: 'unconfirmed receipt' });
     return {
       valid: false,
       reason:
-        MIN_CONFIRMATIONS === 1
+        minConfirmations === 1
           ? 'Transaction is not yet confirmed.'
-          : `Transaction needs at least ${MIN_CONFIRMATIONS} confirmations.`,
+          : `Transaction needs at least ${minConfirmations} confirmations.`,
     };
   }
 
-  if (receipt.to?.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
+  if (receipt.to?.toLowerCase() !== contractAddress.toLowerCase()) {
     logger.warn({ msg: 'Payment verification failed', txHash, reason: 'wrong contract target' });
     return { valid: false, reason: 'Transaction did not target CeloScribePayment contract.' };
   }
@@ -66,7 +82,7 @@ export async function verifyPayment(
     expectedUser,
     expectedTaskType,
     blockNumber: receipt.blockNumber,
-    contractAddress: CONTRACT_ADDRESS,
+    contractAddress,
   });
 
   const paymentReceivedEvent = parseAbiItem(
@@ -74,7 +90,7 @@ export async function verifyPayment(
   );
 
   const logs = await client.getLogs({
-    address: CONTRACT_ADDRESS,
+    address: contractAddress,
     event: paymentReceivedEvent,
     fromBlock: receipt.blockNumber,
     toBlock: receipt.blockNumber,
