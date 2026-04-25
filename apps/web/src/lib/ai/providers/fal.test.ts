@@ -22,9 +22,9 @@ vi.mock('@fal-ai/client', () => ({
 }));
 
 vi.mock('@/lib/env', () => ({
-  env: {
+  getServerEnv: () => ({
     FAL_API_KEY: 'test-fal-key',
-  },
+  }),
 }));
 
 vi.mock('@/lib/logger', () => ({

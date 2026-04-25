@@ -1,16 +1,26 @@
 import OpenAI from 'openai';
 
-import { env } from '@/lib/env';
+import { getServerEnv } from '@/lib/env';
 import { logger } from '@/lib/logger';
 
 import { rethrowProviderError } from '../providerErrors';
 import type { TaskRequest, TaskResult } from '../taskTypes';
 import { TASK_LIMITS } from '../taskTypes';
 
-const client = new OpenAI({
-  apiKey: env.DEEPSEEK_API_KEY,
-  baseURL: 'https://api.deepseek.com/v1',
-});
+let deepSeekClient: OpenAI | null = null;
+
+function getDeepSeekClient(): OpenAI {
+  if (!deepSeekClient) {
+    const { DEEPSEEK_API_KEY } = getServerEnv();
+
+    deepSeekClient = new OpenAI({
+      apiKey: DEEPSEEK_API_KEY,
+      baseURL: 'https://api.deepseek.com/v1',
+    });
+  }
+
+  return deepSeekClient;
+}
 
 function normalizeOutput(content: string | null | undefined | Array<{ text?: string }>): string {
   if (typeof content === 'string') {
@@ -49,7 +59,7 @@ export async function generateWithDeepSeek(request: TaskRequest): Promise<TaskRe
       : 'You are a helpful AI assistant. Respond clearly and concisely.';
 
   try {
-    const response = await client.chat.completions.create({
+    const response = await getDeepSeekClient().chat.completions.create({
       model: 'deepseek-chat',
       max_tokens: limits.maxOutputTokens,
       messages: [

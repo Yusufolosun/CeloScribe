@@ -1,12 +1,23 @@
 import { fal } from '@fal-ai/client';
 
-import { env } from '@/lib/env';
+import { getServerEnv } from '@/lib/env';
 import { logger } from '@/lib/logger';
 
 import { rethrowProviderError } from '../providerErrors';
 import type { TaskRequest, TaskResult } from '../taskTypes';
 
-fal.config({ credentials: env.FAL_API_KEY });
+let configuredFalApiKey: string | null = null;
+
+function ensureFalConfigured(): void {
+  const { FAL_API_KEY } = getServerEnv();
+
+  if (configuredFalApiKey === FAL_API_KEY) {
+    return;
+  }
+
+  fal.config({ credentials: FAL_API_KEY });
+  configuredFalApiKey = FAL_API_KEY;
+}
 
 export async function generateWithFal(request: TaskRequest): Promise<TaskResult> {
   const start = Date.now();
@@ -16,6 +27,8 @@ export async function generateWithFal(request: TaskRequest): Promise<TaskResult>
   }
 
   try {
+    ensureFalConfigured();
+
     const result = await fal.subscribe('fal-ai/stable-diffusion-v35-large', {
       input: {
         prompt: request.prompt,

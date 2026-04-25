@@ -1,13 +1,22 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-import { env } from '@/lib/env';
+import { getServerEnv } from '@/lib/env';
 import { logger } from '@/lib/logger';
 
 import { rethrowProviderError } from '../providerErrors';
 import type { TaskRequest, TaskResult } from '../taskTypes';
 import { TASK_LIMITS } from '../taskTypes';
 
-const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+let anthropicClient: Anthropic | null = null;
+
+function getAnthropicClient(): Anthropic {
+  if (!anthropicClient) {
+    const { ANTHROPIC_API_KEY } = getServerEnv();
+    anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+  }
+
+  return anthropicClient;
+}
 
 export async function generateWithAnthropic(request: TaskRequest): Promise<TaskResult> {
   const start = Date.now();
@@ -20,7 +29,7 @@ export async function generateWithAnthropic(request: TaskRequest): Promise<TaskR
   }
 
   try {
-    const message = await client.messages.create({
+    const message = await getAnthropicClient().messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: limits.maxOutputTokens,
       messages: [{ role: 'user', content: request.prompt }],

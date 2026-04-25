@@ -26,9 +26,9 @@ vi.mock('openai', () => ({
 }));
 
 vi.mock('@/lib/env', () => ({
-  env: {
+  getServerEnv: () => ({
     DEEPSEEK_API_KEY: 'test-deepseek-key',
-  },
+  }),
 }));
 
 vi.mock('@/lib/logger', () => ({

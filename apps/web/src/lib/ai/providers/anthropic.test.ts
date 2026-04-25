@@ -24,9 +24,9 @@ vi.mock('@anthropic-ai/sdk', () => ({
 }));
 
 vi.mock('@/lib/env', () => ({
-  env: {
+  getServerEnv: () => ({
     ANTHROPIC_API_KEY: 'test-anthropic-key',
-  },
+  }),
 }));
 
 vi.mock('@/lib/logger', () => ({
