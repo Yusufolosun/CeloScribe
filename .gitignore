@@ -1,29 +1,70 @@
 # ═══════════════════════════════════════════════════════════════════
 # SECRETS & ENVIRONMENT — NEVER COMMIT THESE
 # ═══════════════════════════════════════════════════════════════════
+# Environment files
 .env
 .env.local
 .env.*.local
 .env.production
+.env.production.local
 .env.staging
+.env.staging.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
-*.env
-*.mnemonic
-*.seed
-*.secret
-*.secret.*
 .envrc
-secrets/
-.secrets/
+.envrc.local
+
+# Secrets & credentials (all formats)
+*.env
 *.key
 *.pem
 *.p12
 *.pfx
+*.jks
+*.keystore
+*.cer
+*.crt
+*.pk8
+*.pass
+
+# Wallet & mnemonic files
+*.mnemonic
+*.seed
+*.secret
+*.secret.*
 mnemonic.txt
 seed.txt
 wallet.json
+.wallets/
+.keys/
+.private/
 keystore/
+secrets/
+.secrets/
+private_keys/
+
+# Cloud provider credentials
+.aws/
+.azure/
+gcp-*.json
+firebase-*.json
+
+# IDE & OS secrets
+.vscode/settings.json
+.vscode/launch.json
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Vercel & deployment
+.vercel/.env*.local
+.vercel/*.local
+
+# Thirdweb & blockchain SDK secrets
+.thirdweb-cache
+.thirdweb-secret
 
 # ═══════════════════════════════════════════════════════════════════
 # HARDHAT / BLOCKCHAIN
