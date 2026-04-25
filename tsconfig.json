@@ -1,3 +1,9 @@
 {
-  "extends": "./apps/web/tsconfig.json"
+  "extends": "./apps/web/tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["apps/web/src/**/*.ts", "apps/web/src/**/*.tsx"],
+  "exclude": ["node_modules", "packages/contracts", "docs"]
 }
