@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 
-import { type Hash } from 'viem';
+import { type Address, type Hash } from 'viem';
 import { useAccount, useChainId, usePublicClient, useWriteContract } from 'wagmi';
 
 import type { TaskType } from '@/lib/ai/taskTypes';
@@ -12,8 +12,6 @@ import { TASK_PRICES } from '@/lib/payment/taskPrices';
 import { requirePublicAddressEnv } from '@/lib/publicEnv';
 
 import { useCusdApproval } from './useCusdApproval';
-
-const CONTRACT_ADDRESS = requirePublicAddressEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS');
 
 const TASK_TYPE_INDEX: Record<TaskType, number> = {
   TEXT_SHORT: 0,
@@ -77,12 +75,20 @@ export function useTaskPayment(): UseTaskPaymentReturn {
         return null;
       }
 
+      let contractAddress: Address;
+      try {
+        contractAddress = requirePublicAddressEnv('NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS');
+      } catch {
+        setState('error');
+        setError('App configuration is missing NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS.');
+        return null;
+      }
+
       setState('approving');
       setTxHash(null);
       setError(null);
 
       try {
-        const contractAddress = CONTRACT_ADDRESS;
         const amount = TASK_PRICES[taskType];
         const approvalHash = await approve(contractAddress, amount);
 

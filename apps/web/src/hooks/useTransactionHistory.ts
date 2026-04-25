@@ -12,10 +12,6 @@ import {
 } from '@/lib/contracts';
 import { optionalPublicEnv, requirePublicAddressEnv } from '@/lib/publicEnv';
 
-const CONTRACT_ADDRESS = requirePublicAddressEnv(
-  'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
-) as Address;
-
 const CELO_RPC_URL = optionalPublicEnv('NEXT_PUBLIC_CELO_RPC_URL', 'https://forno.celo.org');
 
 export function useTransactionHistory(userAddress: Address | undefined) {
@@ -40,6 +36,10 @@ export function useTransactionHistory(userAddress: Address | undefined) {
       setError(null);
 
       try {
+        const contractAddress = requirePublicAddressEnv(
+          'NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS'
+        ) as Address;
+
         const client = createPublicClient({
           chain: celo,
           transport: http(CELO_RPC_URL),
@@ -47,7 +47,7 @@ export function useTransactionHistory(userAddress: Address | undefined) {
 
         const entries = await loadTransactionHistory({
           client,
-          contractAddress: CONTRACT_ADDRESS,
+          contractAddress,
           fromBlock: CELOSCRIBE_CONTRACT_DEPLOYMENT_BLOCK,
           userAddress: currentUserAddress,
         });
