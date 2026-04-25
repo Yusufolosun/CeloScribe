@@ -1,0 +1,11 @@
+{
+  "network": "celo",
+  "chainId": 42220,
+  "contractAddress": "0x75d4126f59cBF839DAcA8fD3B74005Cc033dE9EC",
+  "cusdAddress": "0x765DE816845861e75A25fCA122bb6898B8B1282a",
+  "treasuryAddress": "0x5f833f2C30C9Ed92686CAddd4Bf228f522292CDf",
+  "deployerAddress": "0x5f833f2C30C9Ed92686CAddd4Bf228f522292CDf",
+  "txHash": "0x5662df1c74b9be9b75e16ebb3b1f59165148bbd4ccd3f7e6e66c1e0ef992a2ee",
+  "blockNumber": 64681064,
+  "deployedAt": "2026-04-19T06:57:07.330Z"
+}
