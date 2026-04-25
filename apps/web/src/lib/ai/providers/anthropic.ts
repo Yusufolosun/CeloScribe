@@ -12,6 +12,11 @@ let anthropicClient: Anthropic | null = null;
 function getAnthropicClient(): Anthropic {
   if (!anthropicClient) {
     const { ANTHROPIC_API_KEY } = getServerEnv();
+
+    if (!ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_API_KEY is not configured.');
+    }
+
     anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
   }
 

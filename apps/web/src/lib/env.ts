@@ -10,7 +10,7 @@ import { type Address, getAddress, isAddress } from 'viem';
 
 export interface ServerEnv {
   DEEPSEEK_API_KEY: string;
-  ANTHROPIC_API_KEY: string;
+  ANTHROPIC_API_KEY: string | undefined;
   FAL_API_KEY: string;
   CELO_RPC_URL: string;
   CONTRACT_ADDRESS: Address;
@@ -18,6 +18,8 @@ export interface ServerEnv {
   THIRDWEB_SECRET_KEY: string;
   NODE_ENV: string;
 }
+
+export type ServerEnvName = keyof ServerEnv;
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -64,7 +66,7 @@ function createServerEnv(): ServerEnv {
   return {
     // AI Providers
     DEEPSEEK_API_KEY: requireEnv('DEEPSEEK_API_KEY'),
-    ANTHROPIC_API_KEY: requireEnv('ANTHROPIC_API_KEY'),
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY?.trim() || undefined,
     FAL_API_KEY: requireEnv('FAL_API_KEY'),
 
     // Blockchain
@@ -92,4 +94,9 @@ export function getServerEnv(): ServerEnv {
 
 export function resetServerEnvForTests(): void {
   cachedEnv = null;
+}
+
+export function hasServerEnv(name: ServerEnvName): boolean {
+  const value = getServerEnv()[name];
+  return typeof value === 'string' ? value.trim() !== '' : value !== undefined;
 }

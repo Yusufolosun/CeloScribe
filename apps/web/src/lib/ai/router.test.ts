@@ -7,19 +7,28 @@ const mockState = vi.hoisted(() => {
   const deepseekMock = vi.fn();
   const falMock = vi.fn();
   const infoMock = vi.fn();
+  const warnMock = vi.fn();
+  const hasServerEnvMock = vi.fn();
 
   return {
     anthropicMock,
     deepseekMock,
     falMock,
     infoMock,
+    warnMock,
+    hasServerEnvMock,
   };
 });
 
 vi.mock('@/lib/logger', () => ({
   logger: {
     info: mockState.infoMock,
+    warn: mockState.warnMock,
   },
+}));
+
+vi.mock('@/lib/env', () => ({
+  hasServerEnv: mockState.hasServerEnvMock,
 }));
 
 vi.mock('./providers/anthropic', () => ({
@@ -40,6 +49,8 @@ describe('routeTask', () => {
     mockState.deepseekMock.mockReset();
     mockState.falMock.mockReset();
     mockState.infoMock.mockReset();
+    mockState.warnMock.mockReset();
+    mockState.hasServerEnvMock.mockReset();
   });
 
   it('routes short text tasks to DeepSeek', async () => {
@@ -62,6 +73,8 @@ describe('routeTask', () => {
   });
 
   it('routes long text tasks to Anthropic', async () => {
+    mockState.hasServerEnvMock.mockReturnValue(true);
+
     mockState.anthropicMock.mockResolvedValue({
       output: 'long',
       processingMs: 1,
@@ -75,6 +88,28 @@ describe('routeTask', () => {
       prompt: 'Write a long explanation.',
       taskType: 'TEXT_LONG',
     });
+    expect(mockState.deepseekMock).not.toHaveBeenCalled();
+  });
+
+  it('falls back to DeepSeek for long text tasks when Anthropic is unavailable', async () => {
+    mockState.hasServerEnvMock.mockReturnValue(false);
+
+    mockState.deepseekMock.mockResolvedValue({
+      output: 'long-via-deepseek',
+      processingMs: 1,
+      provider: 'deepseek-chat',
+      taskType: 'TEXT_LONG',
+    });
+
+    const result = await routeTask({ prompt: 'Write a long explanation.', taskType: 'TEXT_LONG' });
+
+    expect(mockState.anthropicMock).not.toHaveBeenCalled();
+    expect(mockState.deepseekMock).toHaveBeenCalledWith({
+      prompt: 'Write a long explanation.',
+      taskType: 'TEXT_LONG',
+    });
+    expect(mockState.warnMock).toHaveBeenCalled();
+    expect(result.provider).toBe('deepseek-chat');
   });
 
   it('routes image tasks to fal.ai', async () => {
