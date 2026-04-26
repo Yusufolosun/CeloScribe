@@ -1,113 +1,251 @@
 # CeloScribe
 
-Pay-per-use AI access on Celo, built as a MiniApp and backed by on-chain cUSD payments.
+Pay-per-use AI access on Celo. Request transcription, translation, writing, or image generation—pay only for what you use with cUSD, the Celo stablecoin.
 
-## What is CeloScribe
+CeloScribe is a production-grade Web3 application that demonstrates on-chain payment verification coupled with AI service delivery. Built as a Celo MiniApp, it enables seamless AI access through a mobile-first experience backed by real cUSD payments.
 
-CeloScribe is a Celo-based MiniApp that will let users pay for AI access one request at a time instead of subscribing to a monthly plan. The payment boundary is on-chain: a user approves a cUSD payment through a Celo-compatible wallet, and the application uses that verified payment as the basis for delivering the requested AI result. The repository currently contains the Next.js frontend scaffold, the payment contract workspace, and the documentation and tooling needed for the system that will be completed in later prompts.
+## Features
 
-## Composer Alignment
+- **Pay-Per-Use Model**: No subscriptions. Pay only for individual AI requests via on-chain cUSD transactions.
+- **MiniPay Integration**: Native Celo MiniPay support for the smoothest payment experience on mobile.
+- **Multiple AI Tasks**: Transcription, translation, long-form writing, short-form writing, and image generation.
+- **On-Chain Verification**: Payment verification is cryptographically proven on the blockchain before AI work proceeds.
+- **Transaction History**: View all completed tasks and their associated blockchain payments.
+- **Mobile-First Design**: Fully responsive interface optimized for mobile-first Web3 users.
 
-CeloScribe keeps the monorepo shape and MiniPay wallet patterns that Celo Composer emphasizes, but it is customized for the CeloScribe product flow.
+## Tech Stack
 
-- `apps/web` keeps a MiniPay-first connect flow with a clear fallback for injected wallets and an explicit unsupported state when no provider is available.
-- The composer validates prompt length against the selected task limit before payment opens, so oversized requests are blocked locally instead of failing after an on-chain payment.
-- Translate requests now require a target-language selection in the compose flow, and the confirmed language is carried through payment and `/api/task/generate` so the output matches the request the user approved.
-- `packages/contracts` contains the payment contract workspace.
-- The project intentionally does not force MiniPay auto-connect so wallet consent stays explicit.
-- See [docs/COMPOSER.md](docs/COMPOSER.md) for the upstream Composer notes and mapping.
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS, Wagmi, Viem, React Query
+- **Blockchain**: Celo, Solidity smart contracts, Ethers.js for testing
+- **AI Providers**: DeepSeek, Anthropic, fal.ai
+- **Web3 SDKs**: Wagmi, Viem, Thirdweb, MiniPay
+- **Infrastructure**: Vercel deployment, Celoscan block explorer integration
 
-## Prerequisites
+## Quick Start
+
+### Prerequisites
 
 - Node.js 20 or later
 - pnpm 9 or later
-- A Celo-compatible wallet for local testing and future MiniApp flows
+- A Celo-compatible wallet (MiniPay, MetaMask with Celo network)
 
-## Installation
+### Installation
 
 ```bash
-git clone https://github.com/<your-org>/CeloScribe.git
+git clone https://github.com/your-org/CeloScribe.git
 cd CeloScribe
 pnpm install
 cp .env.example .env.local
 ```
 
-If you are only working on the web app, the copied file can stay minimal for now. For contract deployment, add `DEPLOYER_PRIVATE_KEY`, `TREASURY_ADDRESS`, and `CELOSCAN_API_KEY` before running the deploy scripts.
+### Development
 
-The web app also expects AI provider credentials for DeepSeek, Anthropic, and fal.ai, plus the blockchain and Thirdweb values used by the MiniApp shell.
+```bash
+# Start the development server
+pnpm dev
 
-## Mainnet Deployment Checklist
+# Run from specific workspace
+pnpm --dir apps/web dev
 
-Before deploying to Celo mainnet, make sure you have all of the following ready:
+# Run tests
+pnpm test
 
-1. A funded deployer wallet with the private key exported as `DEPLOYER_PRIVATE_KEY`.
-2. A treasury wallet address exported as `TREASURY_ADDRESS`. This is where cUSD revenue will ultimately be withdrawn.
-3. A Celoscan API key exported as `CELOSCAN_API_KEY` for contract verification.
-4. A production RPC URL exported as `NEXT_PUBLIC_CELO_RPC_URL`.
-5. The deployed contract address exported as `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS` after deployment.
-6. A Thirdweb secret key and client ID exported as `THIRDWEB_SECRET_KEY` and `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`.
-7. AI provider credentials exported as `DEEPSEEK_API_KEY`, `ANTHROPIC_API_KEY`, and `FAL_API_KEY`.
-8. A local `.env.local` file that is not committed.
+# Run linting
+pnpm lint
 
-Recommended validation steps before mainnet:
+# Check types
+pnpm --dir apps/web typecheck
+```
+
+Visit `http://localhost:3000` to see the app. The application runs on Celo mainnet by default; adjust `NEXT_PUBLIC_CELO_RPC_URL` in `.env.local` to use testnet.
+
+## Environment Variables
+
+Create a `.env.local` file in the root (this file is not committed):
+
+```bash
+# Blockchain & Deployment (for mainnet deployments only)
+DEPLOYER_PRIVATE_KEY=                  # Private key of deployer wallet
+TREASURY_ADDRESS=                       # Address where cUSD revenue is withdrawn
+CELOSCAN_API_KEY=                       # From https://celoscan.io/myapikey
+CELO_RPC_URL=https://forno.celo.org   # Mainnet RPC
+ALFAJORES_RPC_URL=https://alfajores-forno.celo-testnet.org  # Testnet RPC
+
+# Frontend Configuration
+NEXT_PUBLIC_CELO_RPC_URL=https://forno.celo.org
+NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS=  # Set after contract deployment
+NEXT_PUBLIC_THIRDWEB_CLIENT_ID=           # From Thirdweb dashboard
+
+# AI Provider Keys
+DEEPSEEK_API_KEY=                    # For text generation tasks
+ANTHROPIC_API_KEY=                   # For long-form writing
+FAL_API_KEY=                         # For image generation
+```
+
+**Never commit `.env.local` or any file containing private keys, seed phrases, or API keys.**
+
+## Project Structure
+
+```
+CeloScribe/
+├── apps/web/                    # Next.js frontend application
+│   ├── src/
+│   │   ├── app/                # Next.js app directory
+│   │   ├── components/         # React components
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── lib/                # Utilities and AI routing
+│   │   ├── providers/          # Web3 provider setup
+│   │   └── styles/             # CSS and design tokens
+│   └── e2e/                    # End-to-end tests
+├── packages/contracts/         # Solidity smart contracts
+│   ├── contracts/              # Contract source files
+│   ├── deployments/            # Deployment addresses
+│   ├── scripts/                # Deployment and setup scripts
+│   └── test/                   # Contract tests
+├── docs/                       # Documentation
+│   ├── API.md                  # API reference
+│   ├── ARCHITECTURE.md         # System design
+│   ├── SECURITY.md             # Security guidelines
+│   └── COMPOSER.md             # Celo Composer alignment
+├── CONTRIBUTING.md             # Contribution guidelines
+└── README.md                   # This file
+```
+
+## Architecture
+
+CeloScribe operates as a four-layer system:
+
+1. **MiniApp UI Layer**: React components for user interaction and wallet connection
+2. **Smart Contract Layer**: On-chain payment boundary and verification
+3. **API Layer**: Next.js routes for server-side request validation and AI routing
+4. **AI Provider Layer**: Adapter pattern for DeepSeek, Anthropic, and fal.ai
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed system design.
+
+## Payment Flow
+
+1. User selects an AI task and enters a prompt
+2. Task is validated locally against token/length limits
+3. User reviews and confirms payment in their Celo wallet
+4. Smart contract records the cUSD payment on-chain
+5. API route verifies the on-chain payment before proceeding
+6. AI provider generates the result
+7. Result is delivered to the user in the MiniApp UI
+
+Payment verification is the security boundary: no AI work proceeds without cryptographic proof of on-chain payment.
+
+## Deploying to Mainnet
+
+### Prerequisites
+
+1. Ensure `.env.local` is populated with:
+   - `DEPLOYER_PRIVATE_KEY`: Wallet with sufficient CELO and cUSD
+   - `TREASURY_ADDRESS`: Where revenue will be withdrawn
+   - `CELOSCAN_API_KEY`: For contract verification
+   - `NEXT_PUBLIC_THIRDWEB_CLIENT_ID`: Thirdweb SDK key
+   - All AI provider keys
+
+2. Run validation:
 
 ```bash
 pnpm --dir packages/contracts test
 pnpm --dir packages/contracts compile
-pnpm --dir apps/web test
 pnpm --dir apps/web lint
+pnpm --dir apps/web test
 pnpm --dir apps/web build
 ```
 
-## Deploying To Mainnet
-
-1. Populate `.env.local` with the values above.
-2. Run the contract deployment script:
+3. Deploy the contract:
 
 ```bash
 pnpm --dir packages/contracts deploy:mainnet
 ```
 
-3. Copy the printed contract address into `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS`.
-4. Update `apps/web/src/lib/contracts/celoScribeDeployment.ts` with the new deployment block so the history tab keeps its scan bounded.
-5. Re-run `pnpm --dir apps/web build` so the frontend bakes in the deployed address.
-6. Deploy the web app to your host of choice after the build succeeds.
-7. Send a small end-to-end test payment from MiniPay on Celo mainnet and confirm the `/api/task/generate` flow succeeds.
+4. Copy the returned contract address to `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS`
 
-## Development Commands
+5. Update `apps/web/src/lib/contracts/celoScribeDeployment.ts` with deployment block number
+
+6. Rebuild and deploy the frontend:
 
 ```bash
-pnpm dev         # Runs the workspace development tasks
-pnpm build       # Runs the workspace production build
-pnpm lint        # Runs the workspace lint pipeline
-pnpm test        # Runs workspace tests when present
-```
-
-For frontend work specifically, you can run the app directly from `apps/web`:
-
-```bash
-pnpm --dir apps/web dev
 pnpm --dir apps/web build
-pnpm --dir apps/web lint
-pnpm --dir apps/web exec vitest run src/lib/ai/**/*.test.ts
 ```
 
-## Repository Structure
+7. Test end-to-end on mainnet from a MiniPay wallet
 
-```text
-CeloScribe/
-├── apps/
-│   └── web/               Next.js MiniApp frontend scaffold
+## Documentation
+
+- **[Architecture](docs/ARCHITECTURE.md)**: System design, payment flow, and layer responsibilities
+- **[API Reference](docs/API.md)**: Payment verification, task generation, and webhook routes
+- **[Security](docs/SECURITY.md)**: Secret management, on-chain verification, and security expectations
+- **[Contributing](CONTRIBUTING.md)**: Commit conventions, branching strategy, and code review process
+
+## Testing
+
+```bash
+# Unit tests
+pnpm --dir apps/web test
+
+# Contract tests
+pnpm --dir packages/contracts test
+
+# End-to-end tests
+pnpm --dir apps/web test:e2e
+
+# Type checking
+pnpm --dir apps/web typecheck
+
+# Linting
+pnpm lint
+
+# Full deployment check
+pnpm --dir apps/web check:deploy
+```
+
+## Security
+
+- All secrets are stored in `.env.local` (never committed)
+- Private keys and API keys remain server-side only
+- On-chain payment verification is cryptographically enforced
+- Rate limiting is applied server-side by wallet address
+- Contract is verified on Celoscan for transparency
+
+See [docs/SECURITY.md](docs/SECURITY.md) for complete security guidelines.
+
+## Support & Community
+
+- GitHub Issues: Report bugs and request features
+- GitHub Discussions: Ask questions and share ideas
+- Documentation: See `docs/` directory for detailed guides
+
+## License
+
+This project is licensed under the MIT License. See LICENSE file for details.
+
+## Contributing
+
+We welcome contributions from developers, designers, and community members. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
+- Code style and commit conventions
+- Pull request process
+- Testing and validation requirements
+- Documentation standards
+
+## Acknowledgments
+
+CeloScribe is built on the Celo ecosystem and follows Celo Composer patterns. Special thanks to the Celo community for the MiniPay infrastructure and Web3 tooling.
 ├── packages/
-│   └── contracts/         Hardhat Solidity workspace for payment logic
-├── docs/                  Architecture, security, and API documentation
-├── .husky/                Git hooks used by the quality pipeline
-├── .prettierrc            Root Prettier configuration
-├── .prettierignore        Files excluded from formatting
-├── package.json           Workspace scripts and lint-staged config
-└── turbo.json             Turborepo task configuration
+│ └── contracts/ Hardhat Solidity workspace for payment logic
+├── docs/ Architecture, security, and API documentation
+├── .husky/ Git hooks used by the quality pipeline
+├── .prettierrc Root Prettier configuration
+├── .prettierignore Files excluded from formatting
+├── package.json Workspace scripts and lint-staged config
+└── turbo.json Turborepo task configuration
+
 ```
 
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
+```
