@@ -12,25 +12,25 @@ const TASK_META: Record<
   TEXT_SHORT: {
     icon: '✍️',
     name: 'Short Text',
-    description: 'Email, caption, summary, tweet — up to 300 words',
+    description: 'Write emails, captions, summaries, and tweets up to 300 words.',
     maxLen: '300 words',
   },
   TEXT_LONG: {
     icon: '📄',
     name: 'Long Text',
-    description: 'Article, proposal, essay — up to 1500 words',
+    description: 'Compose articles, proposals, essays, and reports up to 1500 words.',
     maxLen: '1500 words',
   },
   IMAGE: {
     icon: '🖼️',
-    name: 'Image',
-    description: 'Generate an image from your description',
+    name: 'Image Generation',
+    description: 'Generate high-quality images from detailed descriptions and prompts.',
     maxLen: '1000 chars',
   },
   TRANSLATE: {
     icon: '🌍',
     name: 'Translate',
-    description: 'Translate into a chosen target language',
+    description: 'Translate text into any language with accuracy up to 1500 characters.',
     maxLen: '1500 chars',
   },
 };
@@ -48,7 +48,7 @@ export function TaskCard({ taskType, selected, onSelect, disabled = false }: Tas
 
   const buttonProps: ButtonHTMLAttributes<HTMLButtonElement> = {
     'aria-pressed': selected,
-    'aria-label': `${meta.name}, ${price} cUSD, ${meta.description}`,
+    'aria-label': `${meta.name} task: ${meta.description} Cost: ${price} cUSD`,
     className: `task-card ${selected ? 'task-card--selected' : ''}`,
     disabled,
     onClick: () => onSelect(taskType),
