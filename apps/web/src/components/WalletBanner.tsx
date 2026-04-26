@@ -6,23 +6,23 @@ import { useMiniPay } from '@/hooks/useMiniPay';
 
 const walletBannerCopy = {
   miniPay: {
-    eyebrow: 'MiniPay ready',
-    title: 'This app is ready in MiniPay.',
-    detail: 'Use the MiniPay connector for the smoothest Celo payment flow.',
+    eyebrow: 'Native Celo Experience',
+    title: 'Connect with MiniPay',
+    detail: 'Experience seamless on-chain payments optimized for mobile Web3.',
     actionLabel: 'Connect MiniPay',
   },
   injected: {
-    eyebrow: 'Injected wallet detected',
-    title: 'A browser wallet is available.',
+    eyebrow: 'Wallet Available',
+    title: 'Connect Your Browser Wallet',
     detail:
-      'CeloScribe can connect through the fallback wallet connector, but MiniPay is the primary experience.',
-    actionLabel: 'Connect wallet',
+      'MiniPay provides the best experience, but you can also connect through your installed browser wallet.',
+    actionLabel: 'Connect Wallet',
   },
   unsupported: {
-    eyebrow: 'MiniPay required',
-    title: 'No injected wallet was found.',
-    detail: 'Open CeloScribe in MiniPay or install a browser wallet before continuing.',
-    actionLabel: 'Open in MiniPay',
+    eyebrow: 'Wallet Required',
+    title: 'Connect a Celo Wallet to Get Started',
+    detail: 'Use MiniPay (native to Celo) or install a Web3 wallet like MetaMask to continue.',
+    actionLabel: 'Learn More',
   },
 } as const;
 
