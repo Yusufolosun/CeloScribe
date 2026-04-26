@@ -6,10 +6,31 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'CeloScribe',
-  description: 'Mobile-first MiniPay task selection and payment flow for CeloScribe.',
-  other: {
-    'talentapp:project_verification':
-      '05e003a6fe77a3dc4b0ea8748d6575213ef176039b241ea2fe3f1b9c7ee48cc64e41fb14a51b8e99fcfa9dd1bd52c37b631e8e04b8ae7b1c1c723fb2dea2a8d0',
+  description:
+    'Pay-per-use AI access on Celo. Request transcription, translation, writing, or image generation—pay only for what you use with cUSD.',
+  authors: [{ name: 'CeloScribe Contributors' }],
+  keywords: ['Celo', 'MiniPay', 'AI', 'Web3', 'pay-per-use', 'blockchain', 'stablecoin', 'cUSD'],
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://celoscribe.com',
+    title: 'CeloScribe',
+    description:
+      'Pay-per-use AI access on Celo. Request transcription, translation, writing, or image generation—pay only for what you use with cUSD.',
+    images: [
+      {
+        url: 'https://celoscribe.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'CeloScribe',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CeloScribe',
+    description:
+      'Pay-per-use AI access on Celo. Request transcription, translation, writing, or image generation—pay only for what you use with cUSD.',
   },
 };
 
