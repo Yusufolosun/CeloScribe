@@ -1,8 +1,21 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google';
 
 import { Web3Provider } from '@/providers/Web3Provider';
 
 import './globals.css';
+
+const uiFont = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-ui-sans',
+});
+
+const displayFont = Space_Grotesk({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-ui-display',
+});
 
 export const metadata: Metadata = {
   title: 'CeloScribe',
@@ -40,7 +53,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${uiFont.variable} ${displayFont.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <Web3Provider>{children}</Web3Provider>
       </body>
