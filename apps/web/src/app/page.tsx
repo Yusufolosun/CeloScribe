@@ -157,12 +157,12 @@ export default function Home() {
     }
 
     if (!isConnected) {
-      setResultError('Connect your wallet to continue.');
+      setResultError('Connect your wallet to proceed with payment.');
       return;
     }
 
     if (!isOnCelo) {
-      setResultError('Switch to Celo mainnet to continue.');
+      setResultError('Switch to the Celo network in your wallet to continue.');
       return;
     }
 
@@ -194,13 +194,13 @@ export default function Home() {
     <main className="task-flow">
       <div className="task-flow__shell">
         <section className="task-flow__hero" aria-labelledby="celoScribeTitle">
-          <div className="task-flow__eyebrow">CeloScribe MiniApp</div>
+          <div className="task-flow__eyebrow">Pay-Per-Use AI Access</div>
           <h1 id="celoScribeTitle" className="task-flow__title">
-            Choose a task, pay in cUSD, and get the result in one flow.
+            Get AI Results for cUSD, Instantly
           </h1>
           <p className="task-flow__subtitle">
-            Built for MiniPay first, with a clear fallback for injected wallets and an explicit
-            unsupported state when no provider is available.
+            Select your task, confirm payment on the blockchain, and receive your result. No
+            subscriptions, no contracts—just on-chain payments for what you use.
           </p>
         </section>
 
@@ -239,7 +239,7 @@ export default function Home() {
         >
           <section className="task-flow__section" aria-labelledby="taskSelectionTitle">
             <h2 id="taskSelectionTitle" className="task-flow__section-title">
-              Select a task
+              Select an AI task
             </h2>
             <div className="task-flow__grid">
               {TASK_TYPES.map((taskType) => (
@@ -260,8 +260,8 @@ export default function Home() {
               </p>
               <p className="prompt-panel__hint">
                 {selectedTask
-                  ? `Selected ${TASK_PRICE_DISPLAY[selectedTask]} cUSD task. Max input ${selectedLimit ?? 0} characters.`
-                  : 'Select a task before writing your prompt.'}
+                  ? `Cost: ${TASK_PRICE_DISPLAY[selectedTask]} cUSD. Maximum ${selectedLimit ?? 0} characters.`
+                  : 'Select a task type above to get started.'}
               </p>
             </div>
 
@@ -286,7 +286,7 @@ export default function Home() {
                     Target language
                   </label>
                   <p id={targetLanguageHintId} className="prompt-panel__hint">
-                    Pick the language for the translation before paying.
+                    Choose your target language before confirming the payment.
                   </p>
                 </div>
                 <select
