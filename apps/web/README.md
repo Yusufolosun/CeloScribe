@@ -1,54 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CeloScribe Web App
 
-## Getting Started
+`apps/web` contains the Next.js frontend for CeloScribe.
 
-First, run the development server:
+This app handles:
+
+- Wallet connection (MiniPay-first with injected-wallet fallback)
+- Task selection and prompt composition
+- On-chain payment initiation in cUSD
+- Task result rendering and transaction history
+- API routes for payment verification and AI task routing
+
+## Stack
+
+- Next.js 16 + React 19 + TypeScript
+- Wagmi + Viem + React Query
+- Tailwind CSS + custom component styles
+- Thirdweb client integration
+- API routes under `src/app/api/*`
+
+## Local Development
+
+From repository root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm --dir apps/web dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or from `apps/web`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build And Quality Checks
 
-## Web3 Setup
+```bash
+pnpm --dir apps/web lint
+pnpm --dir apps/web test
+pnpm --dir apps/web typecheck
+pnpm --dir apps/web build
+```
 
-The app shell now mounts a client-side Web3 provider that combines Wagmi v2, Viem, and React Query for Celo mainnet and Alfajores support.
+## Required Environment Variables
 
-- `src/lib/chains.ts` centralizes the Celo chain definitions and the cUSD contract address.
-- `src/lib/wagmi.ts` configures Wagmi with a MiniPay-aware injected connector plus a generic injected fallback so the app can explain MiniPay-ready, injected-wallet, and unsupported-browser states.
-- `src/hooks/useMiniPay.ts` exposes wallet state, MiniPay detection, provider availability, and connect/disconnect actions.
-- `src/components/WalletBanner.tsx` surfaces the active wallet mode before the payment flow starts.
-- `src/components/WalletSummary.tsx` shows live CELO and cUSD balances so the wallet panel mirrors the Composer Minipay balance pattern.
-- `src/hooks/useCusdApproval.ts` and `src/hooks/useTaskPayment.ts` handle the client payment flow with receipt confirmation.
-- `src/lib/payment/taskPrices.ts` mirrors the on-chain task prices for UI display and payment checks.
-- `src/lib/thirdweb.ts` exposes a reusable Thirdweb client for future wallet or SDK integrations.
+Populate root `.env.local` (not committed):
 
-If you want to use Thirdweb features that need a client ID, set `NEXT_PUBLIC_THIRDWEB_CLIENT_ID` in your environment.
-To use the payment hooks, set `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS` to the deployed `CeloScribePayment` address.
+```bash
+NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS=
+NEXT_PUBLIC_CELO_RPC_URL=https://forno.celo.org
+NEXT_PUBLIC_THIRDWEB_CLIENT_ID=
 
-You can start from `.env.example` in this folder and copy the value into `.env.local`.
+DEEPSEEK_API_KEY=
+ANTHROPIC_API_KEY=
+FAL_API_KEY=
 
-## Learn More
+THIRDWEB_SECRET_KEY=
+```
 
-To learn more about Next.js, take a look at the following resources:
+Notes:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `ANTHROPIC_API_KEY` is optional at runtime. If missing, `TEXT_LONG` requests fall back to DeepSeek.
+- `NEXT_PUBLIC_CELOSCRIBE_CONTRACT_ADDRESS` must match the deployed `CeloScribePayment` contract address.
+- Secrets must stay server-side and must not be committed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Directory Highlights
 
-## Deploy on Vercel
+- `src/app/page.tsx`: main user flow
+- `src/app/api/payment/verify/route.ts`: payment verification endpoint
+- `src/app/api/task/generate/route.ts`: payment-gated AI generation endpoint
+- `src/hooks/useTaskPayment.ts`: payment transaction workflow
+- `src/lib/payment/verifyPayment.ts`: on-chain verification logic
+- `src/lib/ai/router.ts`: provider routing and fallback behavior
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Unit/integration tests: `pnpm --dir apps/web test`
+- End-to-end tests: `pnpm --dir apps/web test:e2e`
+
+E2E tests are under `apps/web/e2e`.
