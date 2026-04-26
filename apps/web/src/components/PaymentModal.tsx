@@ -13,12 +13,12 @@ interface PaymentModalProps {
 }
 
 const STATE_MESSAGES: Record<PaymentModalProps['paymentState'], string> = {
-  idle: 'Confirm payment to proceed',
-  approving: 'Approving cUSD spend...',
-  paying: 'Sending payment...',
-  confirming: 'Waiting for confirmation...',
-  done: 'Payment confirmed ✓',
-  error: 'Payment failed',
+  idle: 'Review the payment amount and confirm to proceed',
+  approving: 'Authorizing cUSD spending in your wallet...',
+  paying: 'Sending payment transaction to the blockchain...',
+  confirming: 'Waiting for blockchain confirmation (1-2 blocks)...',
+  done: 'Payment confirmed and recorded on-chain ✓',
+  error: 'Payment failed. Please try again or contact support.',
 };
 
 export function PaymentModal({
@@ -41,9 +41,12 @@ export function PaymentModal({
     >
       <div className="modal">
         <h2 className="modal__title">Confirm Payment</h2>
-        <p className="modal__amount">
-          {price} <span className="modal__currency">cUSD</span>
-        </p>
+        <div style={{ marginTop: '0.65rem' }}>
+          <p style={{ margin: 0, color: 'var(--color-muted)', fontSize: '0.85rem' }}>Amount</p>
+          <p className="modal__amount">
+            {price} <span className="modal__currency">cUSD</span>
+          </p>
+        </div>
         {targetLanguage?.trim() && (
           <p className="modal__detail">Target language: {targetLanguage.trim()}</p>
         )}
@@ -68,9 +71,9 @@ export function PaymentModal({
             disabled={isProcessing || paymentState === 'done'}
             className="btn btn--primary"
             type="button"
-            aria-label={`Pay ${price} cUSD`}
+            aria-label={`Pay ${price} cUSD to proceed`}
           >
-            {isProcessing ? 'Processing...' : `Pay ${price}`}
+            {isProcessing ? 'Processing...' : `Pay ${price} cUSD`}
           </button>
         </div>
       </div>
