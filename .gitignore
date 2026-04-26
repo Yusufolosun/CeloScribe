@@ -31,9 +31,11 @@
 
 # Wallet & mnemonic files
 *.mnemonic
+*.mnemonics
 *.seed
 *.secret
 *.secret.*
+mnemonics.txt
 mnemonic.txt
 seed.txt
 wallet.json
@@ -91,6 +93,7 @@ apps/web/.vercel/
 # ═══════════════════════════════════════════════════════════════════
 node_modules/
 .pnpm-store/
+pnpm-lock.yaml.*
 dist/
 build/
 
